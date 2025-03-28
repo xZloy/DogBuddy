@@ -1,7 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
-import android.content.Intent
-import android.util.Log
+
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,8 +30,8 @@ private lateinit var auth:FirebaseAuth
 @Composable
 fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
     auth = Firebase.auth
-    var correo by remember { mutableStateOf("") }
-    var contraseña by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     Box(
         modifier = modifier
@@ -90,8 +89,8 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
                     .padding(start = 20.dp)
             )
             OutlinedTextField(
-                value = correo,
-                onValueChange = { correo = it },
+                value = email,
+                onValueChange = { email = it },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,8 +116,8 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
                     .padding(start = 20.dp)
             )
             OutlinedTextField(
-                value = contraseña,
-                onValueChange = { contraseña = it },
+                value = password,
+                onValueChange = { password = it },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -138,10 +137,10 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
             // Botón de Ingreso
             Button(
                 onClick = {
-                    if(correo.isEmpty() || contraseña.isEmpty()){
+                    if(email.isEmpty() || password.isEmpty()){
                         Toast.makeText(context,"Favor de llenar todos los campos",Toast.LENGTH_SHORT).show()
                     }else{
-                        auth.signInWithEmailAndPassword(correo,contraseña)
+                        auth.signInWithEmailAndPassword(email,password)
                             .addOnCompleteListener() { task ->
                                 if (task.isSuccessful) {
                                     // Sign in success, update UI with the signed-in user's information

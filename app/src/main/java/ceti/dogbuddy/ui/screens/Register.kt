@@ -45,8 +45,8 @@ fun updateUI(user: FirebaseUser?, navController: NavController) {
 @Composable
 fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
     var usuario by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var contraseña by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     auth = Firebase.auth
     Box(
@@ -132,8 +132,8 @@ fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier
                     .padding(start = 20.dp)
             )
             OutlinedTextField(
-                value = correo,
-                onValueChange = { correo = it },
+                value = email,
+                onValueChange = { email = it },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,8 +159,8 @@ fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier
                     .padding(start = 20.dp)
             )
             OutlinedTextField(
-                value = contraseña,
-                onValueChange = { contraseña = it },
+                value = password,
+                onValueChange = { password = it },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,13 +180,13 @@ fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier
             // Botón de Registro
             Button(
                 onClick = {
-                    if(correo.isEmpty() && contraseña.isEmpty() && usuario.isEmpty()){
-                        correo = ""
-                        contraseña = ""
+                    if(email.isEmpty() && password.isEmpty() && usuario.isEmpty()){
+                        email = ""
+                        password = ""
                         usuario = ""
                         Toast.makeText(context,"Favor de llenar todas las cajas", Toast.LENGTH_SHORT).show()
                     }else{
-                        auth.createUserWithEmailAndPassword(correo, contraseña)
+                        auth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener() { task ->
                                 if (task.isSuccessful) {
                                     Log.d(TAG, "createUserWithEmail:success")
