@@ -4,16 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,121 +19,138 @@ import ceti.dogbuddy.R
 
 @Composable
 fun LoginDogBuddy(modifier: Modifier = Modifier) {
+    var usuario by remember { mutableStateOf("") }
+    var contraseña by remember { mutableStateOf("") }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(color = Color.White)
+            .background(color = Color(0xffe3f2fd))
     ) {
-        // Fondo superior
+        // Encabezado superior
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .background(color = Color(0xff01579b))
+                .background(color = Color(0xff01579b)),
         ) {
             Text(
                 text = "DogBuddy",
                 color = Color.White,
-                style = TextStyle(fontSize = 40.sp),
+                style = TextStyle(fontSize = 32.sp),
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 20.dp)
             )
         }
 
-        // Contenedor de login
+        // Formulario de Login
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(top = 140.dp), // Mueve todo hacia abajo
+                .align(Alignment.Center)
+                .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Título "Inicia sesión"
             Text(
                 text = "Inicia sesión",
                 color = Color(0xff01579b),
-                style = TextStyle(fontSize = 20.sp)
+                style = TextStyle(fontSize = 24.sp)
             )
 
-            // Imagen justo debajo del título
             Image(
                 painter = painterResource(id = R.drawable.image4),
                 contentDescription = "Logo de DogBuddy",
                 modifier = Modifier
-                    .size(100.dp)
-                    .padding(top = 8.dp) // Espacio entre el texto y la imagen
+                    .size(130.dp)
+                    .padding(top = 16.dp)
             )
 
-            // Espacio para empujar los campos hacia abajo
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Campo Usuario
             Text(
                 text = "Usuario:",
                 color = Color(0xff01579b),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Start).padding(start = 20.dp)
-            )
-            Box(
+                fontSize = 20.sp,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .align(Alignment.Start)
+                    .padding(start = 20.dp)
+            )
+            OutlinedTextField(
+                value = usuario,
+                onValueChange = { usuario = it },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .background(color = Color.Gray)
+                    .padding(vertical = 8.dp),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White, // Fondo blanco al enfocar
+                    unfocusedContainerColor = Color.White, // Fondo blanco sin enfocar
+                    focusedTextColor = Color.Black, // Color del texto enfocado
+                    unfocusedTextColor = Color.Black, // Color del texto sin enfocar
+                    focusedIndicatorColor = Color(0xff4fc3f7), // Borde al enfocar
+                    unfocusedIndicatorColor = Color(0xff01579b) // Borde sin enfocar
+                )
             )
 
             // Campo Contraseña
             Text(
-                text = "Contraseña:",
+                "Contraseña:",
                 color = Color(0xff01579b),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Start).padding(start = 20.dp, top = 8.dp)
-            )
-            Box(
+                fontSize = 20.sp,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .align(Alignment.Start)
+                    .padding(start = 20.dp)
+            )
+            OutlinedTextField(
+                value = contraseña,
+                onValueChange = { contraseña = it },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .background(color = Color.Gray)
+                    .padding(vertical = 8.dp),
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(), // Ocultar texto
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White, // Fondo blanco al enfocar
+                    unfocusedContainerColor = Color.White, // Fondo blanco sin enfocar
+                    focusedTextColor = Color.Black, // Texto enfocado
+                    unfocusedTextColor = Color.Black, // Texto sin enfocar
+                    focusedIndicatorColor = Color(0xff4fc3f7), // Borde al enfocar
+                    unfocusedIndicatorColor = Color(0xff01579b) // Borde sin enfocar
+                )
             )
 
-            // Botón de Ingresar
-            Box(
+            // Botón de Ingreso
+            Button(
+                onClick = { /* Acción de login */ },
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
                 modifier = Modifier
                     .padding(top = 20.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(color = Color(0xff4fc3f7))
-                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
-                    .padding(vertical = 12.dp, horizontal = 50.dp)
+                    .width(150.dp)
+                    .height(48.dp)
             ) {
-                Text(
-                    text = "Ingresar",
-                    color = Color.White,
-                    style = TextStyle(fontSize = 20.sp),
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Text("Ingresar", fontSize = 18.sp)
             }
 
             // Enlaces de Olvido y Crear cuenta
-            Text(
-                text = "¿Olvidaste tu contraseña?",
-                color = Color(0xff01579b),
-                style = TextStyle(fontSize = 16.sp),
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            Text(
-                text = "Crear cuenta",
-                color = Color(0xff01579b),
-                style = TextStyle(fontSize = 16.sp),
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            TextButton(onClick = { /* Navegar a pantalla de recuperación */ }) {
+                Text("¿Olvidaste tu contraseña?", color = Color(0xff01579b), fontSize = 16.sp)
+            }
+
+            TextButton(onClick = { /* Navegar a pantalla de registro */ }) {
+                Text("Crear cuenta", color = Color(0xff01579b), fontSize = 16.sp)
+            }
         }
     }
 }
 
 @Preview(widthDp = 360, heightDp = 800)
 @Composable
-private fun LoginDogBuddyPreview() {
+fun LoginDogBuddyPreview() {
     LoginDogBuddy(Modifier)
 }
+
