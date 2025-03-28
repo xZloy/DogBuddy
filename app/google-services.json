@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "749714992034",
+    "project_id": "dogbuddy-97428",
+    "storage_bucket": "dogbuddy-97428.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:749714992034:android:99fbcb21c34da503f4e0fb",
+        "android_client_info": {
+          "package_name": "ceti.dogbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwfBTY9gxlEMVP1W7cASrjsecVA5X-rsU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

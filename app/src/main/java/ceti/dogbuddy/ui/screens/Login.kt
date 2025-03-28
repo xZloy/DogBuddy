@@ -1,5 +1,8 @@
 package ceti.dogbuddy.ui.screens
 
+import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,19 +12,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.testing.TestNavHostController
 import ceti.dogbuddy.R
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
+//import kotlin.coroutines.jvm.internal.CompletedContinuation.context
+private lateinit var auth:FirebaseAuth
 @Composable
-fun LoginDogBuddy(modifier: Modifier = Modifier) {
-    var usuario by remember { mutableStateOf("") }
+fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
+    auth = Firebase.auth
+    var correo by remember { mutableStateOf("") }
     var contraseña by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -39,7 +51,7 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
                 color = Color.White,
                 style = TextStyle(fontSize = 32.sp),
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
+                    .align(Alignment.BottomCenter)
                     .padding(start = 20.dp)
             )
         }
@@ -70,7 +82,7 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
 
             // Campo Usuario
             Text(
-                text = "Usuario:",
+                text = "Correo:",
                 color = Color(0xff01579b),
                 fontSize = 20.sp,
                 modifier = Modifier
@@ -78,8 +90,8 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
                     .padding(start = 20.dp)
             )
             OutlinedTextField(
-                value = usuario,
-                onValueChange = { usuario = it },
+                value = correo,
+                onValueChange = { correo = it },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,7 +137,27 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
 
             // Botón de Ingreso
             Button(
-                onClick = { /* Acción de login */ },
+                onClick = {
+                    if(correo.isEmpty() || contraseña.isEmpty()){
+                        Toast.makeText(context,"Favor de llenar todos los campos",Toast.LENGTH_SHORT).show()
+                    }else{
+                        auth.signInWithEmailAndPassword(correo,contraseña)
+                            .addOnCompleteListener() { task ->
+                                if (task.isSuccessful) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Toast.makeText(context, "Authentication success.", Toast.LENGTH_SHORT,).show()
+                                    val user = auth.currentUser
+                                    updateUI(user,navController)
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    //Log.w(TAG, "signInWithEmail:failure", task.exception)
+                                    Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT,).show()
+                                    updateUI(null,navController)
+                                }
+                            }
+                    }
+
+                },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
                 modifier = Modifier
@@ -137,11 +169,11 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
             }
 
             // Enlaces de Olvido y Crear cuenta
-            TextButton(onClick = { /* Navegar a pantalla de recuperación */ }) {
+            TextButton(onClick = {  }) {
                 Text("¿Olvidaste tu contraseña?", color = Color(0xff01579b), fontSize = 16.sp)
             }
 
-            TextButton(onClick = { /* Navegar a pantalla de registro */ }) {
+            TextButton(onClick = { navController.navigate("register") }) {
                 Text("Crear cuenta", color = Color(0xff01579b), fontSize = 16.sp)
             }
         }
@@ -151,6 +183,7 @@ fun LoginDogBuddy(modifier: Modifier = Modifier) {
 @Preview(widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDogBuddyPreview() {
-    LoginDogBuddy(Modifier)
+    val fakeNavController = TestNavHostController(LocalContext.current)
+    LoginDogBuddy(navController = fakeNavController, modifier = Modifier)
 }
 
