@@ -9,22 +9,44 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.R
 
 @Composable
-fun MenuPerritoDogBuddy(modifier: Modifier = Modifier) {
+fun HomeDogBuddy(navController: NavController, modifier: Modifier = Modifier)
+{
+    val user = FirebaseAuth.getInstance().currentUser
+    val context = LocalContext.current
+
+    // Si el usuario no está logueado, redirige a la pantalla de inicio de sesión
+    if (user == null) {
+        navController.navigate("login") {
+            popUpTo("home") { inclusive = true }
+        }
+        return
+    }
+
+    // Texto que mostrará el correo del usuario
+    val correo = user.email ?: "Correo no disponible"
+
     Box(
         modifier = modifier
             .requiredWidth(width = 360.dp)
@@ -321,10 +343,5 @@ fun MenuPerritoDogBuddy(modifier: Modifier = Modifier) {
                     y = 747.dp)
                 .requiredSize(size = 45.dp))
     }
-}
 
-@Preview(widthDp = 360, heightDp = 800)
-@Composable
-private fun MenuPerritoDogBuddyPreview() {
-    MenuPerritoDogBuddy(Modifier)
 }
