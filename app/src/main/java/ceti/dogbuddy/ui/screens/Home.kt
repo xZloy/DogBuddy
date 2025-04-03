@@ -2,28 +2,18 @@ package ceti.dogbuddy.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -31,12 +21,10 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.R
 
 @Composable
-fun HomeDogBuddy(navController: NavController, modifier: Modifier = Modifier)
-{
+fun HomeDogBuddy(navController: NavController) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
 
-    // Si el usuario no está logueado, redirige a la pantalla de inicio de sesión
     if (user == null) {
         navController.navigate("login") {
             popUpTo("home") { inclusive = true }
@@ -44,304 +32,184 @@ fun HomeDogBuddy(navController: NavController, modifier: Modifier = Modifier)
         return
     }
 
-    // Texto que mostrará el correo del usuario
-    val correo = user.email ?: "Correo no disponible"
-
     Box(
-        modifier = modifier
-            .requiredWidth(width = 360.dp)
-            .requiredHeight(height = 800.dp)
-            .background(color = Color.White)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE3F2FD))
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 60.dp) // deja espacio para navbar
+        ) {
+            // Encabezado
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF01579B))
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.image4),
+                    contentDescription = "Logo",
+                    modifier = Modifier.height(40.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "¡Bienvenido a DogBuddy!",
+                color = Color(0xFF01579B),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.image8),
+                    contentDescription = "Mascota",
+                    modifier = Modifier.size(54.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Firulais", fontSize = 20.sp, color = Color(0xFF01579B))
+                    Text("Cambiar mascota", fontSize = 12.sp, color = Color(0xFF01579B))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SectionButton("Alimentación Saludable", Color(0xFF6FCF97), R.drawable.image5) {
+                navController.navigate("alimentacion")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SectionButton("Higiene y limpieza", Color(0xFF4FC3F7), R.drawable.clean) {
+                navController.navigate("higiene")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SectionButton("Trucos y juegos", Color(0xFFF78F4F), R.drawable.play) {
+                navController.navigate("juegos")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "¿Quieres que conozcamos más a tu perro?",
+                color = Color(0xFF01579B),
+                fontSize = 14.sp,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+
+        // ⬇ Barra de navegación colocada correctamente
         Box(
             modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 0.dp,
-                    y = (-3).dp)
-                .requiredWidth(width = 360.dp)
-                .requiredHeight(height = 805.dp)
+                .fillMaxWidth()
+                .height(60.dp)
+                .align(Alignment.BottomCenter)
+                .background(Color(0xFF01579B))
         ) {
-            Text(
-                text = "DogBuddy",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 40.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 98.96.dp,
-                        y = 0.dp)
-                    .requiredWidth(width = 238.dp)
-                    .requiredHeight(height = 11.dp))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 0.dp,
-                        y = 2.86.dp)
-                    .requiredWidth(width = 360.dp)
-                    .requiredHeight(height = 799.dp)
-                    .background(color = Color(0xffe3f2fd)))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 0.dp,
-                        y = 2.86.dp)
-                    .requiredWidth(width = 360.dp)
-                    .requiredHeight(height = 55.dp)
-                    .background(color = Color(0xff01579b)))
-            Image(
-                painter = painterResource(id = R.drawable.image4),
-                contentDescription = "image 4",
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 0.dp,
-                        y = 6.96.dp)
-                    .fillMaxWidth()
-                    .requiredHeight(height = 47.dp))
-            Text(
-                text = "¡Bienvenido a DogBuddy!",
-                color = Color(0xff01579b),
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 67.dp,
-                        y = 73.dp)
-                    .requiredWidth(width = 250.dp)
-                    .requiredHeight(height = 12.dp))
-            Text(
-                text = "¡Bienvenido a DogBuddy!",
-                color = Color(0xff01579b),
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 67.dp,
-                        y = 73.dp)
-                    .requiredWidth(width = 250.dp)
-                    .requiredHeight(height = 40.dp))
-            Image(
-                painter = painterResource(id = R.drawable.image8),
-                contentDescription = "image 8",
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 45.98.dp,
-                        y = 137.72.dp)
-                    .requiredSize(size = 54.dp))
-            Text(
-                text = "Firulais",
-                color = Color(0xff01579b),
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 105.dp,
-                        y = 150.dp)
-                    .requiredWidth(width = 87.dp)
-                    .requiredHeight(height = 26.dp))
-            Text(
-                text = "Cambiar mascota",
-                color = Color(0xff01579b),
-                style = TextStyle(
-                    fontSize = 7.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 105.dp,
-                        y = 172.dp)
-                    .requiredWidth(width = 69.dp)
-                    .requiredHeight(height = 10.dp))
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BottomNavItem(
+                    icon = R.drawable.home,
+                    label = "Inicio",
+                    route = "home",
+                    navController = navController
+                )
+                BottomNavItem(
+                    icon = R.drawable.camera,
+                    label = "Scanear",
+                    route = "scan",
+                    navController = navController
+                )
+                BottomNavItem(
+                    icon = R.drawable.calendar,
+                    label = "Calendario",
+                    route = "calendar",
+                    navController = navController
+                )
+                BottomNavItem(
+                    icon = R.drawable.user,
+                    label = "Perfil",
+                    route = "profile",
+                    navController = navController
+                )
 
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 39.59.dp,
-                        y = 210.63.dp)
-                    .requiredWidth(width = 292.dp)
-                    .requiredHeight(height = 114.dp)
-                    .clip(shape = RoundedCornerShape(16.dp))
-                    .background(color = Color(0xff6fcf97))
-                    .shadow(elevation = 4.dp,
-                        shape = RoundedCornerShape(16.dp)))
-            Image(
-                painter = painterResource(id = R.drawable.image5),
-                contentDescription = "image 5",
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 35.91.dp,
-                        y = 194.49.dp)
-                    .requiredSize(size = 148.dp))
-            Text(
-                text = "Alimentacion Saludable",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 184.dp,
-                        y = 239.dp)
-                    .requiredWidth(width = 153.dp)
-                    .requiredHeight(height = 57.dp))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 38.72.dp,
-                        y = 349.79.dp)
-                    .requiredWidth(width = 292.dp)
-                    .requiredHeight(height = 114.dp)
-                    .clip(shape = RoundedCornerShape(16.dp))
-                    .background(color = Color(0xff4fc3f7))
-                    .shadow(elevation = 4.dp,
-                        shape = RoundedCornerShape(16.dp)))
-            Text(
-                text = "Higiene y limpieza ",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 180.dp,
-                        y = 374.dp)
-                    .requiredWidth(width = 153.dp)
-                    .requiredHeight(height = 57.dp))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 35.91.dp,
-                        y = 468.02.dp)
-                    .requiredSize(size = 148.dp))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 39.59.dp,
-                        y = 484.17.dp)
-                    .requiredWidth(width = 292.dp)
-                    .requiredHeight(height = 114.dp)
-                    .clip(shape = RoundedCornerShape(16.dp))
-                    .background(color = Color(0xfff78f4f))
-                    .shadow(elevation = 4.dp,
-                        shape = RoundedCornerShape(16.dp)))
-            Text(
-                text = "Trucos y juegos",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 20.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 180.dp,
-                        y = 512.dp)
-                    .requiredWidth(width = 153.dp)
-                    .requiredHeight(height = 57.dp))
-            Text(
-                text = "¿Quieres que conozcamos mas a tu perro?",
-                color = Color(0xff01579b),
-                style = TextStyle(
-                    fontSize = 15.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 58.dp,
-                        y = 631.dp)
-                    .requiredWidth(width = 250.dp)
-                    .requiredHeight(height = 40.dp))
-            Box(
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 0.dp,
-                        y = 748.18.dp)
-                    .requiredWidth(width = 360.dp)
-                    .requiredHeight(height = 55.dp)
-                    .background(color = Color(0xff01579b)))
-            Text(
-                text = "Perfil",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 10.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 308.dp,
-                        y = 789.dp)
-                    .requiredWidth(width = 25.dp)
-                    .requiredHeight(height = 14.dp))
-            Text(
-                text = "Scanear",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 10.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 109.dp,
-                        y = 789.dp)
-                    .requiredWidth(width = 42.dp)
-                    .requiredHeight(height = 16.dp))
-            Text(
-                text = "Inicio",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 10.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 25.dp,
-                        y = 790.dp)
-                    .requiredWidth(width = 27.dp)
-                    .requiredHeight(height = 15.dp))
-            Text(
-                text = "Calendario",
-                color = Color.White,
-                style = TextStyle(
-                    fontSize = 10.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.TopStart)
-                    .offset(x = 201.dp,
-                        y = 790.dp)
-                    .requiredWidth(width = 62.dp)
-                    .requiredHeight(height = 15.dp))
+            }
         }
-        Image(
-            painter = painterResource(id = R.drawable.clean),
-            contentDescription = "image 20",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 50.dp,
-                    y = 341.dp)
-                .requiredSize(size = 120.dp))
-        Image(
-            painter = painterResource(id = R.drawable.play),
-            contentDescription = "image 21",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 53.dp,
-                    y = 485.dp)
-                .requiredSize(size = 108.dp))
-        Image(
-            painter = painterResource(id = R.drawable.home),
-            contentDescription = "Home",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 16.dp,
-                    y = 747.dp)
-                .requiredSize(size = 45.dp))
-        Image(
-            painter = painterResource(id = R.drawable.camera),
-            contentDescription = "Camera",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 107.dp,
-                    y = 747.dp)
-                .requiredSize(size = 45.dp))
-        Image(
-            painter = painterResource(id = R.drawable.user),
-            contentDescription = "User",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 296.dp,
-                    y = 747.dp)
-                .requiredSize(size = 48.dp))
-        Image(
-            painter = painterResource(id = R.drawable.calendar),
-            contentDescription = "Calendar",
-            modifier = Modifier
-                .align(alignment = Alignment.TopStart)
-                .offset(x = 202.dp,
-                    y = 747.dp)
-                .requiredSize(size = 45.dp))
     }
+}
 
+@Composable
+fun SectionButton(
+    text: String,
+    color: Color,
+    image: Int,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(color)
+            .clickable { onClick() }
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = image),
+                contentDescription = null,
+                modifier = Modifier.size(80.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text, fontSize = 18.sp, color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun BottomNavItem(
+    icon: Int,
+    label: String,
+    route: String,
+    navController: NavController
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable {
+                navController.navigate(route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            .padding(8.dp)
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = label,
+            modifier = Modifier.size(30.dp)
+        )
+        Text(text = label, color = Color.White, fontSize = 10.sp)
+    }
 }
