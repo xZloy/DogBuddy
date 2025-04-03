@@ -1,5 +1,6 @@
 package ceti.dogbuddy
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
@@ -32,5 +34,6 @@ fun AppNavigation() {
         composable("login") { LoginDogBuddy(navController) }
         composable("register") { RegisterDogBuddy(navController) }
         composable("home") { HomeDogBuddy(navController) }
+        composable("calendar"){CalendarDogBuddy(navController)}
     }
 }

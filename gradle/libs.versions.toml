@@ -1,10 +1,12 @@
 [versions]
 agp = "8.9.1"
+core = "1.1.1"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
+landscapistCoil3 = "2.2.11"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
@@ -12,9 +14,16 @@ navigationCompose = "2.8.9"
 navigationTesting = "2.8.9"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.2.0"
+material3 = "1.2.0-alpha08"
+coil = "2.5.0"
+
+
 
 [libraries]
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+sheets-calendar = { module = "com.maxkeppeker.sheets-compose-dialogs:calendar", version.ref = "core" }
+sheets-core = { module = "com.maxkeppeker.sheets-compose-dialogs:core", version.ref = "core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -31,6 +40,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+landscapist-coil3 = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landscapistCoil3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
