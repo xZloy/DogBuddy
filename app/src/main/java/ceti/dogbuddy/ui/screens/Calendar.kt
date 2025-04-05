@@ -114,7 +114,7 @@ fun CalendarDogBuddy(navController: NavController) {
                 }
             }
 
-            Box(
+            /*Box(
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth()
@@ -142,7 +142,7 @@ fun CalendarDogBuddy(navController: NavController) {
                         color = Color.Gray
                     )
                 }
-            }
+            }*/
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -210,7 +210,7 @@ fun ReminderDialogView(
 ) {
     val titleText = remember { mutableStateOf("") }
     val showTimePicker = remember { mutableStateOf(false) }
-
+    val showError = remember { mutableStateOf(false) }
     val selectedDateMillis = remember { mutableStateOf<Long?>(null) }
     val datePickerState = rememberDatePickerState()
     val selectedHour = remember { mutableStateOf(12) }
@@ -314,14 +314,32 @@ fun ReminderDialogView(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            val isValid = titleText.value.isNotBlank() && selectedDateMillis.value != null
+
+            if (showError.value && !isValid) {
+                Text(
+                    "Por favor completa todos los campos.",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 4.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
             Button(
                 onClick = {
-                    val reminder = Reminder(
-                        titulo = titleText.value,
-                        fecha = formattedDate,
-                        hora = formattedTime
-                    )
-                    onSaveReminder(reminder)
+                    if (isValid) {
+                        val reminder = Reminder(
+                            titulo = titleText.value,
+                            fecha = formattedDate,
+                            hora = formattedTime
+                        )
+                        onSaveReminder(reminder)
+                        showError.value = false // Limpiar error si todo salió bien
+                    } else {
+                        showError.value = true // Mostrar mensaje de error
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
                 shape = RoundedCornerShape(12.dp),
@@ -329,6 +347,7 @@ fun ReminderDialogView(
             ) {
                 Text("Guardar", color = Color.White)
             }
+
         }
     }
 }
