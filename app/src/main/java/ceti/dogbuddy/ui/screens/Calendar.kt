@@ -186,7 +186,7 @@ fun CalendarDogBuddy(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomNavItem(R.drawable.home, "Inicio", "home", navController)
-                BottomNavItem(R.drawable.camera, "Scanear", "scan", navController)
+                BottomNavItem(R.drawable.camera, "Scanear", "scaner", navController)
                 BottomNavItem(R.drawable.calendar, "Calendario", "calendar", navController)
                 BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
             }
@@ -237,7 +237,7 @@ fun BottomNavigationBar(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             BottomNavItem(R.drawable.home, "Inicio", "home", navController)
-            BottomNavItem(R.drawable.camera, "Scanear", "scan", navController)
+            BottomNavItem(R.drawable.camera, "Scanear", "scaner", navController)
             BottomNavItem(R.drawable.calendar, "Calendario", "calendar", navController)
             BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
         }
