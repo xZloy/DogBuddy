@@ -41,6 +41,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.testing.TestNavHostController
 import ceti.dogbuddy.R
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -48,8 +50,9 @@ import com.google.firebase.auth.auth
 
 private lateinit var auth: FirebaseAuth
 @Composable
-fun RecoverPswdDogBuddy(modifier: Modifier = Modifier) {
+fun RecoverPassDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
     var email by remember { mutableStateOf("") }
+    auth = Firebase.auth
 
     Box(
         modifier = modifier
@@ -60,7 +63,7 @@ fun RecoverPswdDogBuddy(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(100.dp)
                 .background(color = Color(0xff01579b)),
         ) {
             Image(
@@ -82,7 +85,6 @@ fun RecoverPswdDogBuddy(modifier: Modifier = Modifier) {
             )
         }
 
-        // Formulario de Login
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,39 +136,8 @@ fun RecoverPswdDogBuddy(modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
+                    //TODO implementar la funcion para enviar correo
                     println("press")
-                    /*
-                    if (email.isEmpty() || password.isEmpty()) {
-                        Toast.makeText(
-                            context,
-                            "Favor de llenar todos los campos",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener() { task ->
-                                if (task.isSuccessful) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Toast.makeText(
-                                        context,
-                                        "Authentication success.",
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                                    val user = auth.currentUser
-                                    updateUI(user, navController)
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    //Log.w(TAG, "signInWithEmail:failure", task.exception)
-                                    Toast.makeText(
-                                        context,
-                                        "Authentication failed.",
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-                                    updateUI(null, navController)
-                                }
-                            }
-                    }
-                */
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
@@ -185,5 +156,6 @@ fun RecoverPswdDogBuddy(modifier: Modifier = Modifier) {
 @Preview(widthDp = 360, heightDp = 800)
 @Composable
 private fun NewPass() {
-    RecoverPswdDogBuddy(Modifier)
+    val fakeNavController = TestNavHostController(LocalContext.current)
+    RecoverPassDogBuddy(navController = fakeNavController, modifier = Modifier)
 }
