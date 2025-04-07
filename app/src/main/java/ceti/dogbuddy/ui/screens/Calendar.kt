@@ -114,36 +114,6 @@ fun CalendarDogBuddy(navController: NavController) {
                 }
             }
 
-            /*Box(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(Color.White)
-                    .shadow(elevation = 4.dp)
-                    .clickable { showDatePicker.value = true }
-                    .padding(16.dp)
-            ) {
-                val formattedDate = selectedDateMillis.value?.let {
-                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    sdf.format(Date(it))
-                } ?: "Selecciona una fecha"
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = formattedDate,
-                        fontSize = 18.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Toca para abrir el calendario",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
-            }*/
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
@@ -177,7 +147,6 @@ fun CalendarDogBuddy(navController: NavController) {
                 Text("+", color = Color.White, fontSize = 30.sp)
             }
         }
-
 
         Box(
             modifier = Modifier
@@ -347,7 +316,6 @@ fun ReminderDialogView(
             ) {
                 Text("Guardar", color = Color.White)
             }
-
         }
     }
 }
@@ -356,47 +324,43 @@ fun ReminderDialogView(
 @Composable
 fun NumberPicker(value: Int, range: IntRange, onValueChange: (Int) -> Unit, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, fontSize = 12.sp, color = Color(0xFF01579B))
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = {
-                if (value > range.first) onValueChange(value - 1)
-            }) {
-                Text("−", fontSize = 24.sp, color = Color(0xFF01579B))
-            }
-            Text(String.format("%02d", value), fontSize = 20.sp, color = Color.Black)
-            IconButton(onClick = {
-                if (value < range.last) onValueChange(value + 1)
-            }) {
-                Text("+", fontSize = 24.sp, color = Color(0xFF01579B))
-            }
-        }
+        Text(label, color = Color(0xFF01579B), fontSize = 14.sp)
+        Slider(
+            value = value.toFloat(),
+            onValueChange = { onValueChange(it.toInt()) },
+            valueRange = range.first.toFloat()..range.last.toFloat(),
+            steps = range.last - range.first - 1
+        )
     }
 }
 
+
 @Composable
-fun AppointmentCard(titulo: String, fecha: String, hora: String, icon: Int) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+fun AppointmentCard(titulo: String, fecha: String, hora: String, image: Int) {
+    Card(
         modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 8.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFFFF59D))
-            .padding(12.dp)
+            .padding(16.dp)
+            .shadow(2.dp, RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Image(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(20.dp))
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(titulo, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text("$fecha  $hora", fontSize = 14.sp)
+        Row(modifier = Modifier.padding(16.dp)) {
+            AsyncImage(
+                model = "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/SrY7B7riWP/othxnuip.png",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(50))
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(titulo, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF01579B))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("Fecha: $fecha", fontSize = 14.sp, color = Color(0xFF01579B))
+                Text("Hora: $hora", fontSize = 14.sp, color = Color(0xFF01579B))
+            }
         }
     }
 }
@@ -417,3 +381,4 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
     }
 }
+
