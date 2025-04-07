@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,9 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.R
 
@@ -25,13 +28,17 @@ fun HomeDogBuddy(navController: NavController) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
 
+    // Verificación de si el usuario está autenticado
     if (user == null) {
+        // Agregar un mensaje informativo antes de redirigir al login
+        Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
         navController.navigate("login") {
             popUpTo("home") { inclusive = true }
         }
         return
     }
 
+    // Pantalla principal
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +47,7 @@ fun HomeDogBuddy(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 60.dp) // deja espacio para navbar
+                .padding(bottom = 60.dp) // Deja espacio para la barra de navegación
         ) {
             // Encabezado
             Box(
@@ -59,6 +66,7 @@ fun HomeDogBuddy(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Título
             Text(
                 text = "¡Bienvenido a DogBuddy!",
                 color = Color(0xFF01579B),
@@ -69,6 +77,7 @@ fun HomeDogBuddy(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Información de la mascota
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -87,6 +96,7 @@ fun HomeDogBuddy(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Secciones
             SectionButton("Alimentación Saludable", Color(0xFF6FCF97), R.drawable.image5) {
                 navController.navigate("alimentacion")
             }
@@ -113,7 +123,7 @@ fun HomeDogBuddy(navController: NavController) {
             )
         }
 
-        // ⬇ Barra de navegación colocada correctamente
+        // Barra de navegación inferior
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,7 +145,7 @@ fun HomeDogBuddy(navController: NavController) {
                 BottomNavItem(
                     icon = R.drawable.camera,
                     label = "Scanear",
-                    route = "scan",
+                    route = "scaner",
                     navController = navController
                 )
                 BottomNavItem(
@@ -150,7 +160,6 @@ fun HomeDogBuddy(navController: NavController) {
                     route = "profile",
                     navController = navController
                 )
-
             }
         }
     }
@@ -213,3 +222,10 @@ fun BottomNavItem(
         Text(text = label, color = Color.White, fontSize = 10.sp)
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun HomeDogBuddyPreview() {
+    HomeDogBuddy(navController = rememberNavController())
+}
+
