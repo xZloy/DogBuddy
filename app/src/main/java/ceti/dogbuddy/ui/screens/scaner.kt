@@ -12,6 +12,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import ceti.dogbuddy.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +149,47 @@ fun ScannerScreen(navController: NavController) {
                 BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
             }
         }
+
+        // Botones para subir imagen y tomar foto
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(80.dp)
+                .align(Alignment.BottomCenter)
+        ) {
+            // Botón para subir imagen
+            IconButton(
+                onClick = { /* Lógica para abrir el explorador de archivos */ },
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(Color.White, shape = CircleShape)
+                    .padding(16.dp)
+                    .align(Alignment.CenterStart) // Alineación al inicio
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = "Subir Imagen",
+                    tint = Color(0xFF01579B)
+                )
+            }
+
+            // Botón para capturar foto (cámara)
+            IconButton(
+                onClick = { /* Lógica para capturar la foto */ },
+                modifier = Modifier
+                    .size(80.dp)
+                    .background(Color(0x9001579B), shape = CircleShape)
+                    .padding(16.dp)
+                    .align(Alignment.Center) // Alineación al centro
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "Capturar Foto",
+                    tint = Color.White
+                )
+            }
+        }
+
     }
 }
 
@@ -188,5 +235,3 @@ fun CameraPreview(modifier: Modifier = Modifier) {
         }
     )
 }
-
-

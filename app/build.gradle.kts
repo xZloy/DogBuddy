@@ -69,4 +69,6 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.mlkit.vision)
     implementation(libs.androidx.camera.extensions)
+    implementation("androidx.compose.material3:material3:1.0.0")
+    implementation("androidx.compose.material:material-icons-extended:1.0.0")
 }
