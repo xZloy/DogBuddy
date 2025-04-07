@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
+import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
 import ceti.dogbuddy.ui.screens.ScannerScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -37,7 +38,8 @@ fun AppNavigation() {
         composable("login") { LoginDogBuddy(navController) }
         composable("register") { RegisterDogBuddy(navController) }
         composable("home") { HomeDogBuddy(navController) }
-        composable("calendar") { CalendarDogBuddy(navController) }
+        composable("calendar"){CalendarDogBuddy(navController)}
+        composable("newpass") { RecoverPassDogBuddy(navController) }
         composable("scaner") { ScannerScreen(navController) }
     }
 }
