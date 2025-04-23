@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.firestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -47,6 +49,7 @@ fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val db = Firebase.firestore
     auth = Firebase.auth
     Box(
         modifier = modifier
@@ -191,28 +194,48 @@ fun RegisterDogBuddy(navController: NavController, modifier: Modifier = Modifier
                                     Log.d(TAG, "createUserWithEmail:success")
                                     val user = auth.currentUser
 
-                                    // Verifica que el usuario no sea nulo antes de actualizar el perfil
                                     user?.let {
                                         val profileUpdates = UserProfileChangeRequest.Builder()
-                                            .setDisplayName(usuario) // Agrega el nombre de usuario
+                                            .setDisplayName(usuario)
                                             .build()
 
                                         it.updateProfile(profileUpdates)
                                             .addOnCompleteListener { profileTask ->
                                                 if (profileTask.isSuccessful) {
                                                     Log.d(TAG, "User profile updated.")
+
+                                                    // 🔥 Agregar usuario a Firestore
+                                                    val userData = hashMapOf(
+                                                        "uid" to it.uid,
+                                                        "email" to it.email,
+                                                        "username" to usuario,
+                                                        "fechaRegistro" to FieldValue.serverTimestamp()
+                                                    )
+
+                                                    db.collection("usuarios").document(it.uid)
+                                                        .set(userData)
+                                                        .addOnSuccessListener {
+                                                            Log.d(TAG, "Usuario guardado en Firestore.")
+                                                            updateUI(user, navController)
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Log.w(TAG, "Error al guardar usuario", e)
+                                                            Toast.makeText(context, "Error al guardar usuario en Firestore", Toast.LENGTH_SHORT).show()
+                                                            updateUI(null, navController)
+                                                        }
                                                 } else {
                                                     Log.w(TAG, "User profile update failed.", profileTask.exception)
+                                                    updateUI(null, navController)
                                                 }
-                                                updateUI(user,navController) // Actualiza la UI después de actualizar el perfil
                                             }
                                     }
                                 } else {
                                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                                    Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT,).show()
-                                    updateUI(null,navController)
+                                    Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                    updateUI(null, navController)
                                 }
                             }
+
 
 
                     }
