@@ -189,7 +189,7 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
             }
 
             // Enlaces de Olvido y Crear cuenta
-            TextButton(onClick = {  }) {
+            TextButton(onClick = { navController.navigate("newpass") }) {
                 Text("¿Olvidaste tu contraseña?", color = Color(0xff01579b), fontSize = 16.sp)
             }
 
