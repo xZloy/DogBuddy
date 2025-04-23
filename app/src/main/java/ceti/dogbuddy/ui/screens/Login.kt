@@ -1,6 +1,8 @@
 package ceti.dogbuddy.ui.screens
 
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +26,7 @@ import ceti.dogbuddy.R
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 //import kotlin.coroutines.jvm.internal.CompletedContinuation.context
 private lateinit var auth:FirebaseAuth
@@ -33,6 +36,7 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val db = Firebase.firestore
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -145,8 +149,25 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
                                 if (task.isSuccessful) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Toast.makeText(context, "Authentication success.", Toast.LENGTH_SHORT,).show()
+                                    //val user = auth.currentUser
+                                    //updateUI(user,navController)
                                     val user = auth.currentUser
-                                    updateUI(user,navController)
+                                    user?.let {
+                                        db.collection("usuarios").document(it.uid).get()
+                                            .addOnSuccessListener { document ->
+                                                if (document.exists()) {
+                                                    updateUI(user, navController)
+                                                } else {
+                                                    auth.signOut()
+                                                    Toast.makeText(context, "El usuario no está registrado en la base de datos.", Toast.LENGTH_SHORT).show()
+                                                    updateUI(null, navController)
+                                                }
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Toast.makeText(context, "Error al validar el usuario en Firestore.", Toast.LENGTH_SHORT).show()
+                                                Log.e(TAG, "Error en Firestore", e)
+                                            }
+                                    }
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     //Log.w(TAG, "signInWithEmail:failure", task.exception)
