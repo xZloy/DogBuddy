@@ -52,6 +52,7 @@ private lateinit var auth: FirebaseAuth
 @Composable
 fun RecoverPassDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
     var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
     auth = Firebase.auth
 
     Box(
@@ -136,7 +137,12 @@ fun RecoverPassDogBuddy(navController: NavController, modifier: Modifier = Modif
 
             Button(
                 onClick = {
-                    //TODO implementar la funcion para enviar correo
+                    if(email.isEmpty()){
+                        Toast.makeText(context,"Favor de llenar todos los campos",Toast.LENGTH_SHORT).show()
+                    }else {
+                        auth.sendPasswordResetEmail(email)
+                    }
+
                     println("press")
                 },
                 shape = RoundedCornerShape(16.dp),
