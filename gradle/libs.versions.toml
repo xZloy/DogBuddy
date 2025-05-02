@@ -19,6 +19,7 @@ coil = "2.5.0"
 firebaseFirestoreKtx = "25.1.3"
 camerax = "1.5.0-alpha06"
 material-icons-extended = "1.0.0"
+litertSupportApi = "1.2.0"
 
 [libraries]
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
@@ -52,6 +53,7 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 androidx-camera-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camerax" }
 androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icons-extended" }
+litert-support-api = { group = "com.google.ai.edge.litert", name = "litert-support-api", version.ref = "litertSupportApi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
