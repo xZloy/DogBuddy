@@ -73,4 +73,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.0.0")
     implementation("androidx.compose.material:material-icons-extended:1.0.0")
     implementation ("com.google.guava:guava:31.1-android")
+    implementation ("org.tensorflow:tensorflow-lite:2.13.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.4.3")
+    implementation ("org.tensorflow:tensorflow-lite-task-vision:0.4.3")
+
 }

@@ -21,6 +21,7 @@ import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
 import ceti.dogbuddy.ui.screens.ScannerScreen
+import ceti.dogbuddy.ui.screens.UserScreen
 import com.google.firebase.auth.FirebaseAuth
 
 //import ceti.dogbuddy.ui.theme.DogBuddyTheme
@@ -69,6 +70,7 @@ fun AppNavigation() {
             composable("calendar"){ CalendarDogBuddy(navController) }
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
+            composable("profile") { UserScreen(navController) }
             composable("info") {  AditionalInfoScreen(navController) }
         }
     }
