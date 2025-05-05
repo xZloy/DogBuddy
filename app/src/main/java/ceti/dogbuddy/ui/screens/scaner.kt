@@ -349,7 +349,8 @@ fun CameraPreview(
 
             val prediction = outputBuffer[0].withIndex().maxByOrNull { it.value }?.index ?: -1
             confidence = if (prediction != -1) outputBuffer[0][prediction] * 100 else 0.0f
-            predictedLabel = if (prediction != -1) labels[prediction] else "Desconocido"
+            predictedLabel = if (prediction != -1) limpiarNombreRaza(labels[prediction]) else "Desconocido"
+
 
             showDialog = true
         }
@@ -363,7 +364,14 @@ fun CameraPreview(
             onDismiss = { showDialog = false }
         )
     }
+
 }
+fun limpiarNombreRaza(nombreCrudo: String): String {
+    return nombreCrudo.substringAfter("-")
+        .replace("_", " ")
+        .replaceFirstChar { it.uppercase() }
+}
+
 
 fun rotateBitmap(bitmap: Bitmap, context: Context): Bitmap {
     val rotationDegrees = getRotationDegrees(context, CameraSelector.DEFAULT_BACK_CAMERA)  // Usa el selector de cámara aquí
@@ -440,7 +448,7 @@ fun ResultDialog(
                     text = "Raza: $raza",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF01579B)
+                    color = Color.Black
                 )
                 Text(
                     text = "Confianza",
@@ -477,7 +485,7 @@ fun ResultDialog(
                     onClick = onDismiss,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3D84C2)),
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()  // Hacer el botón más amplio
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Aceptar", color = Color.White)
                 }
