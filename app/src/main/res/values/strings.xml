@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">DogBuddy</string>
     <string name="accept">Aceptar</string>
+    <string name="save">Guardar</string>
 </resources>
