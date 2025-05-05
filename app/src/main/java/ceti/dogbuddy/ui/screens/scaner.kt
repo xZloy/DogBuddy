@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.renderscript.Element
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
@@ -19,9 +18,12 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Image
@@ -31,8 +33,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +55,7 @@ import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -99,7 +107,7 @@ fun ScannerScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 60.dp)
-                    .background(Color.White)
+                    .background(Color(0xFFE3F2FD))
             ) {
                 // Encabezado
                 Box(
@@ -131,13 +139,6 @@ fun ScannerScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Vista previa de la cámara
-                /*CameraPreview(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(760.dp)
-                        .padding(horizontal = 16.dp)
-                )*/
                 CameraPreview(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -229,22 +230,6 @@ fun ScannerScreen(navController: NavController) {
                     tint = Color(0xFF01579B)
                 )
             }
-
-            // Botón para capturar foto (cámara)
-            /*IconButton(
-                onClick = { /* Lógica para capturar la foto */ },
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(Color(0x9001579B), shape = CircleShape)
-                    .padding(16.dp)
-                    .align(Alignment.Center) // Alineación al centro
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Capturar Foto",
-                    tint = Color.White
-                )
-            }*/
             // Botón para capturar foto
             IconButton(
                 onClick = {
@@ -287,56 +272,20 @@ object CameraUtils {
     var onImageCaptured: ((Bitmap) -> Unit)? = null
 }
 
-/*@Composable
-fun CameraPreview(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val lifecycleOwner = context as LifecycleOwner
 
-    AndroidView(
-        modifier = modifier,
-        factory = { ctx ->
-            val previewView = PreviewView(ctx).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                try {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        cameraSelector,
-                        preview
-                    )
-                } catch (e: Exception) {
-                    Log.e("CameraPreview", "Error setting up camera: ${e.message}")
-                }
-
-            }, ContextCompat.getMainExecutor(ctx))
-
-            previewView
-        }
-    )
-}*/
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
-    onImageCaptured: (Bitmap) -> Unit
+    onImageCaptured: (Bitmap) -> Unit = {}
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current  // Obtener el contexto
     val lifecycleOwner = context as LifecycleOwner
     val imageCapture = remember { androidx.camera.core.ImageCapture.Builder().build() }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var predictedLabel by remember { mutableStateOf("") }
+    var confidence by remember { mutableStateOf(0f) }
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
 
     AndroidView(
         modifier = modifier,
@@ -374,42 +323,170 @@ fun CameraPreview(
         }
     )
 
-    // Esto expone el objeto para que puedas capturar foto
     LaunchedEffect(Unit) {
         CameraUtils.imageCapture = imageCapture
         CameraUtils.onImageCaptured = { bitmap ->
-            // 1. Escalar imagen al tamaño requerido por el modelo (MobileNetV2 = 224x224)
-            val resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
+            // Ajustar la orientación de la imagen
+            val rotatedBitmap = rotateBitmap(bitmap, context)  // Pasa el contexto aquí
 
-            // 2. Convertir a TensorImage
+            capturedImage = rotatedBitmap
+            val resized = Bitmap.createScaledBitmap(rotatedBitmap, 224, 224, true)
             val tensorImage = TensorImage(DataType.FLOAT32)
             tensorImage.load(resized)
 
-            // 3. Procesar imagen con normalización explícita
             val imageProcessor = ImageProcessor.Builder()
                 .add(ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                .add(NormalizeOp(0f, 255f)) // Muy importante para MobileNet
+                .add(NormalizeOp(0f, 255f))
                 .build()
 
             val processedImage = imageProcessor.process(tensorImage)
 
-            // 4. Ejecutar modelo
             val tflite = Interpreter(loadModelFile(context, "model.tflite"))
             val labels = context.assets.open("labels.txt").bufferedReader().readLines()
-            val outputBuffer = Array(1) { FloatArray(labels.size) } // 120 para Stanford Dogs
+            val outputBuffer = Array(1) { FloatArray(labels.size) }
 
             tflite.run(processedImage.buffer, outputBuffer)
 
-            // 5. Buscar el índice con mayor probabilidad
             val prediction = outputBuffer[0].withIndex().maxByOrNull { it.value }?.index ?: -1
-            val confidence = if (prediction != -1) outputBuffer[0][prediction] * 100 else 0.0f
-            val predictedLabel = if (prediction != -1) labels[prediction] else "Desconocido"
+            confidence = if (prediction != -1) outputBuffer[0][prediction] * 100 else 0.0f
+            predictedLabel = if (prediction != -1) labels[prediction] else "Desconocido"
 
-            // 6. Mostrar resultado
-            Toast.makeText(context, "Raza: $predictedLabel (%.2f%%)".format(confidence), Toast.LENGTH_LONG).show()
+            showDialog = true
+        }
+    }
+
+    if (showDialog && capturedImage != null) {
+        ResultDialog(
+            raza = predictedLabel,
+            confianza = confidence,
+            image = capturedImage!!,
+            onDismiss = { showDialog = false }
+        )
+    }
+}
+
+fun rotateBitmap(bitmap: Bitmap, context: Context): Bitmap {
+    val rotationDegrees = getRotationDegrees(context, CameraSelector.DEFAULT_BACK_CAMERA)  // Usa el selector de cámara aquí
+    val matrix = android.graphics.Matrix()
+    matrix.postRotate(rotationDegrees.toFloat())  // Rota la imagen según la orientación
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+}
+
+fun getRotationDegrees(context: Context, cameraSelector: CameraSelector): Int {
+    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+    val cameraProvider = cameraProviderFuture.get()
+
+    val camera = cameraProvider.bindToLifecycle(
+        context as LifecycleOwner,
+        cameraSelector
+    )
+
+    val cameraInfo = camera.cameraInfo
+    return cameraInfo.sensorRotationDegrees  // Obtén la rotación de la cámara
+}
+
+
+@Composable
+fun ResultDialog(
+    raza: String,
+    confianza: Float,
+    image: Bitmap,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFFFDF6EC), // Fondo cálido y claro
+            tonalElevation = 8.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_paw),
+                    contentDescription = null,
+                    tint = Color(0xFF3D84C2),
+                    modifier = Modifier.size(48.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "¡Raza Detectada!",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF01579B)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Image(
+                    bitmap = image.asImageBitmap(),
+                    contentDescription = "Foto del perrito",
+                    modifier = Modifier
+                        .size(180.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .border(2.dp, Color(0xFF3D84C2), RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Raza: $raza",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF01579B)
+                )
+                Text(
+                    text = "Confianza",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF01579B)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(100.dp)
+                ) {
+                    CircularProgressIndicator(
+                        progress = confianza / 100f,
+                        strokeWidth = 8.dp,
+                        color = Color(0xFF3D84C2),
+                        trackColor = Color(0xFFE0F2F1),
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    Text(
+                        text = "%.2f%%".format(confianza),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3D84C2)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()  // Hacer el botón más amplio
+                ) {
+                    Text("Aceptar", color = Color.White)
+                }
+            }
         }
     }
 }
+
+
 
 fun loadModelFile(context: Context, modelName: String): MappedByteBuffer {
     val fileDescriptor = context.assets.openFd(modelName)
@@ -419,4 +496,3 @@ fun loadModelFile(context: Context, modelName: String): MappedByteBuffer {
     val declaredLength = fileDescriptor.declaredLength
     return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
 }
-
