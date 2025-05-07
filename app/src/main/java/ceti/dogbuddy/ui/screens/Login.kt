@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,21 +43,38 @@ fun LoginDogBuddy(navController: NavController, modifier: Modifier = Modifier) {
             .fillMaxSize()
             .background(color = Color(0xffe3f2fd))
     ) {
-        // Encabezado superior
+        // Encabezado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
-                .background(color = Color(0xff01579b)),
+                .height(100.dp) // Altura fija para el encabezado
+                .background(Color(0xFF01579B))
         ) {
-            Text(
-                text = "DogBuddy",
-                color = Color.White,
-                style = TextStyle(fontSize = 32.sp),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 20.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.paw),
+                    contentDescription = "Logotipo",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(start = 16.dp) // Margen izquierdo
+                )
+
+                Spacer(modifier = Modifier.weight(0.7f))
+
+                Text(
+                    text = "DogBuddy",
+                    fontSize = 24.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
 
         // Formulario de Login
