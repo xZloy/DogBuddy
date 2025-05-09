@@ -106,7 +106,7 @@ fun HomeDogBuddy(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             SectionButton("Higiene y limpieza", Color(0xFF4FC3F7), R.drawable.clean) {
-                navController.navigate("higiene")
+                navController.navigate("clean")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
