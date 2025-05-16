@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,30 +63,41 @@ fun RecoverPassDogBuddy(navController: NavController, modifier: Modifier = Modif
             .background(color = Color(0xffe3f2fd))
     ) {
 
+        // Encabezado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
-                .background(color = Color(0xff01579b)),
+                .height(64.dp) // Altura fija para el encabezado
+                .background(Color(0xFF01579B))
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.paw),
-                contentDescription = "Paw",
-                modifier = Modifier
-                    .size(110.dp)
-                    .padding(bottom = 5.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.paw),
+                    contentDescription = "Logotipo",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(start = 16.dp) // Margen izquierdo
+                )
 
-            Text(
-                text = "DogBuddy",
-                color = Color.White,
-                style = TextStyle(fontSize = 32.sp),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 20.dp)
-                    .padding(bottom = 5.dp)
-            )
+                Spacer(modifier = Modifier.weight(0.7f))
+
+                Text(
+                    text = "DogBuddy",
+                    fontSize = 24.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Column(
             modifier = Modifier

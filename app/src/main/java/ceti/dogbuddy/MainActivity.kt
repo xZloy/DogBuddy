@@ -1,6 +1,8 @@
 package ceti.dogbuddy
 
 
+
+import android.graphics.BitmapFactory
 import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
@@ -22,8 +25,10 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ceti.dogbuddy.ui.screens.AditionalInfoScreen
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
+import ceti.dogbuddy.ui.screens.EditPetScreen
 import ceti.dogbuddy.ui.screens.CleanScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
@@ -32,6 +37,9 @@ import ceti.dogbuddy.ui.screens.RegisterDogBuddy
 import ceti.dogbuddy.ui.screens.ScannerScreen
 import ceti.dogbuddy.ui.screens.UserScreen
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 //import ceti.dogbuddy.ui.theme.DogBuddyTheme
 
@@ -67,24 +75,7 @@ fun AppNavigation() {
     }
 
     LaunchedEffect(Unit) {
-        val auth = FirebaseAuth.getInstance()
-        val user = auth.currentUser
-
-        if (user != null) {
-            // 🔍 Verificar si está en Firestore
-            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-            db.collection("usuarios").document(user.uid).get()
-                .addOnSuccessListener { document ->
-                    startDestination = if (document.exists()) "home" else "login"
-                    if (!document.exists()) auth.signOut()
-                }
-                .addOnFailureListener {
-                    startDestination = "login"
-                    auth.signOut()
-                }
-        } else {
-            startDestination = "login"
-        }
+        startDestination = getStartDestination()
     }
 
     if (startDestination != null) {
@@ -92,12 +83,59 @@ fun AppNavigation() {
             composable("login") { LoginDogBuddy(navController) }
             composable("register") { RegisterDogBuddy(navController) }
             composable("home") { HomeDogBuddy(navController) }
-            composable("calendar"){ CalendarDogBuddy(navController) }
+            composable("calendar") { CalendarDogBuddy(navController) }
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
             composable("info") {  AditionalInfoScreen(navController) }
             composable("clean") { CleanScreen(navController) }
+            composable(
+                route = "edit_pet/{mascotaId}",
+                arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val mascotaId = backStackEntry.arguments?.getString("mascotaId") ?: ""
+                EditPetScreen(navController = navController, mascotaId = mascotaId)
+            }
+            composable(
+                route = "info?raza={raza}&imagePath={imagePath}",
+                arguments = listOf(
+                    navArgument("raza") { type = NavType.StringType },
+                    navArgument("imagePath") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val raza = backStackEntry.arguments?.getString("raza") ?: "Desconocido"
+                val imagePath = backStackEntry.arguments?.getString("imagePath")
+                val imageBitmap = imagePath?.let { BitmapFactory.decodeFile(it) }
+
+                AditionalInfoScreen(
+                    navController = navController,
+                    raza = raza,
+                    imageBitmap = imageBitmap
+                )
+            }
+
         }
+    }
+}
+
+suspend fun getStartDestination(): String {
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser ?: return "login"
+
+    return suspendCoroutine { continuation ->
+        val db = FirebaseFirestore.getInstance()
+        db.collection("usuarios").document(user.uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    continuation.resume("home")
+                } else {
+                    auth.signOut()
+                    continuation.resume("login")
+                }
+            }
+            .addOnFailureListener {
+                auth.signOut()
+                continuation.resume("login")
+            }
     }
 }

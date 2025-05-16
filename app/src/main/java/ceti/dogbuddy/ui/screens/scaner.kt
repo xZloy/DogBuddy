@@ -59,6 +59,9 @@ import androidx.compose.ui.window.Dialog
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
+import java.io.FileOutputStream
+import java.io.IOException
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,8 +162,10 @@ fun ScannerScreen(navController: NavController) {
                         val predictedLabel = if (prediction != -1) labels[prediction] else "Desconocido"
 
                         Toast.makeText(context, "Raza detectada: $predictedLabel", Toast.LENGTH_LONG).show()
-                    }
+                    },
+                    navController = navController
                 )
+
             }
         } else {
             // Mostrar mensaje si no tiene permiso
@@ -276,6 +281,7 @@ object CameraUtils {
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
+    navController: NavController,
     onImageCaptured: (Bitmap) -> Unit = {}
 ) {
     val context = LocalContext.current  // Obtener el contexto
@@ -361,11 +367,34 @@ fun CameraPreview(
             raza = predictedLabel,
             confianza = confidence,
             image = capturedImage!!,
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
+            onConfirm = {
+                capturedImage?.let { bitmap ->
+                    val imageFile = saveBitmapToFile(context, bitmap)
+                    val route = "info?raza=$predictedLabel&imagePath=${imageFile.absolutePath}"
+                    navController.navigate(route)
+                    showDialog = false
+                }
+            }
         )
     }
 
+
 }
+fun saveBitmapToFile(context: Context, bitmap: Bitmap): File {
+    val fileName = "captured_image_${System.currentTimeMillis()}.jpg"
+    val file = File(context.cacheDir, fileName)
+    try {
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+    return file
+}
+
+
 fun limpiarNombreRaza(nombreCrudo: String): String {
     return nombreCrudo.substringAfter("-")
         .replace("_", " ")
@@ -399,12 +428,13 @@ fun ResultDialog(
     raza: String,
     confianza: Float,
     image: Bitmap,
+    onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color(0xFFFDF6EC), // Fondo cálido y claro
+            color = Color(0xFFFDF6EC),
             tonalElevation = 8.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -481,18 +511,41 @@ fun ResultDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3D84C2)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = "¿Deseas guardar este perrito?",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF01579B)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text("Aceptar", color = Color.White)
+                    Button(
+                        onClick = onConfirm,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3D84C2)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    ) {
+                        Text("Sí", color = Color.White)
+                    }
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB0BEC5)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    ) {
+                        Text("No", color = Color.White)
+                    }
                 }
             }
         }
     }
 }
+
 
 
 
