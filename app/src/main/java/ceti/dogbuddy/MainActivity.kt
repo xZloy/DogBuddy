@@ -1,18 +1,27 @@
 package ceti.dogbuddy
 
 
+
 import android.graphics.BitmapFactory
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,6 +29,7 @@ import androidx.navigation.navArgument
 import ceti.dogbuddy.ui.screens.AditionalInfoScreen
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.EditPetScreen
+import ceti.dogbuddy.ui.screens.CleanScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
@@ -47,6 +57,22 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
     var startDestination by remember { mutableStateOf<String?>(null) }
+    val view = LocalView.current
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        val window = (view.context as Activity).window
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val insetsController = ViewCompat.getWindowInsetsController(view)
+        insetsController?.hide(WindowInsetsCompat.Type.systemBars())
+        insetsController?.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        onDispose {
+            insetsController?.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
 
     LaunchedEffect(Unit) {
         startDestination = getStartDestination()
@@ -61,6 +87,8 @@ fun AppNavigation() {
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
+            composable("info") {  AditionalInfoScreen(navController) }
+            composable("clean") { CleanScreen(navController) }
             composable(
                 route = "edit_pet/{mascotaId}",
                 arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
@@ -85,7 +113,6 @@ fun AppNavigation() {
                     imageBitmap = imageBitmap
                 )
             }
-
 
         }
     }
