@@ -87,7 +87,6 @@ fun AppNavigation() {
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
-            composable("info") {  AditionalInfoScreen(navController) }
             composable("clean") { CleanScreen(navController) }
             composable(
                 route = "edit_pet/{mascotaId}",
