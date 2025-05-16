@@ -50,6 +50,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.testing.TestNavHostController
 import ceti.dogbuddy.R
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.io.ByteArrayOutputStream
+import android.util.Base64
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Save
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AditionalInfoScreen(
@@ -65,15 +75,67 @@ fun AditionalInfoScreen(
     val radioOptions = listOf("Baja", "Media", "Alta")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
-    // Función para obtener el color según la opción seleccionada
     fun getRadioColor(option: String): Color {
         return when (option) {
-            "Baja" -> if (selectedOption == "Baja") Color(0xFFFFEB3B) else Color.Gray // Amarillo bajo
-            "Media" -> if (selectedOption == "Media") Color(0xFFFFC107) else Color.Gray // Amarillo medio
-            "Alta" -> if (selectedOption == "Alta") Color(0xFFFF9800) else Color.Gray // Amarillo alto
+            "Baja" -> if (selectedOption == "Baja") Color(0xFFFFEB3B) else Color.Gray //  bajo
+            "Media" -> if (selectedOption == "Media") Color(0xFFFFC107) else Color.Gray // medio
+            "Alta" -> if (selectedOption == "Alta") Color(0xFFFF9800) else Color.Gray // alto
             else -> Color.Gray
         }
     }
+
+    fun cropToSquare(bitmap: Bitmap): Bitmap {
+        val dimension = minOf(bitmap.width, bitmap.height)
+        val x = (bitmap.width - dimension) / 2
+        val y = (bitmap.height - dimension) / 2
+        return Bitmap.createBitmap(bitmap, x, y, dimension, dimension)
+    }
+
+    fun savePetToFirestore(
+        userId: String,
+        name: String,
+        age: Int,
+        breed: String,
+        activityLevel: String,
+        weight: Float,
+        photoBase: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val db: FirebaseFirestore = Firebase.firestore
+
+        if (userId.isEmpty() || name.isEmpty() || breed.isEmpty() || photoBase.isEmpty()) {
+            onError(Exception("Campos requeridos vacíos"))
+            return
+        }
+
+        val petData = hashMapOf(
+            "userId" to userId,
+            "name" to name,
+            "age" to age,
+            "breed" to breed,
+            "activityLevel" to activityLevel,
+            "weight" to weight,
+            "photoBase" to photoBase
+        )
+
+        db.collection("pet")
+            .add(petData)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
+    }
+
+
+    fun encodeBitmapToBase64(bitmap: Bitmap): String {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, outputStream)
+        return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
+    }
+
 
     Column(
         modifier = modifier
@@ -84,7 +146,7 @@ fun AditionalInfoScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp) // Altura fija para el encabezado
+                .height(64.dp)
                 .background(Color(0xFF01579B))
         ) {
             Row(
@@ -97,7 +159,7 @@ fun AditionalInfoScreen(
                     tint = Color.White,
                     modifier = Modifier
                         .size(60.dp)
-                        .padding(start = 16.dp) // Margen izquierdo
+                        .padding(start = 16.dp)
                 )
 
                 Spacer(modifier = Modifier.weight(0.7f))
@@ -129,18 +191,19 @@ fun AditionalInfoScreen(
                 color = Color(0xff01579b)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            imageBitmap?.let {
+            val croppedBitmap = imageBitmap?.let { cropToSquare(it) }
+            croppedBitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = "Imagen detectada",
                     modifier = Modifier
-                        .size(150.dp) // Tamaño del ícono circular
-                        .clip(CircleShape) // Forma circular
+                        .size(150.dp)
+                        .clip(CircleShape)
                         .background(Color.White)
-                        .border(2.dp, Color(0xff01579b), CircleShape) // Borde circular
-                        .padding(8.dp)
+                        .border(2.dp, Color(0xff01579b), CircleShape)
                 )
-            } ?: Text(
+            }
+                ?: Text(
                 text = "No se pudo cargar la imagen.",
                 color = Color.Red,
                 fontSize = 16.sp
@@ -149,7 +212,6 @@ fun AditionalInfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campos de entrada
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -177,7 +239,6 @@ fun AditionalInfoScreen(
             OutlinedTextField(
                 value = edad,
                 onValueChange = {
-                    // Aceptar solo números
                     if (it.isEmpty() || it.all { char -> char.isDigit() }) {
                         edad = it
                     }
@@ -189,7 +250,7 @@ fun AditionalInfoScreen(
                     .padding(vertical = 8.dp),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number // Establecer teclado numérico
+                    keyboardType = KeyboardType.Number
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
@@ -216,7 +277,7 @@ fun AditionalInfoScreen(
                     .padding(vertical = 8.dp),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number // Establecer teclado numérico
+                    keyboardType = KeyboardType.Number
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
@@ -273,7 +334,24 @@ fun AditionalInfoScreen(
                 if (nombre.isEmpty() || edad.isEmpty() || peso.isEmpty()) {
                     Toast.makeText(context, "Favor de llenar todos los campos", Toast.LENGTH_SHORT).show()
                 } else {
-                    // Acción para guardar
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    savePetToFirestore(
+                        userId = userId,
+                        name = nombre,
+                        age = edad.toInt(),
+                        breed = raza,
+                        activityLevel = selectedOption,
+                        weight = peso.toFloat(),
+                        photoBase = imageBitmap?.let { encodeBitmapToBase64(it) } ?: "",
+                        onSuccess = {
+                            Toast.makeText(context, "Datos guardados correctamente", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
+                        },
+                        onError = { exception ->
+                            Toast.makeText(context, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+
                 }
             },
             shape = RoundedCornerShape(16.dp),
@@ -282,8 +360,39 @@ fun AditionalInfoScreen(
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 16.dp)
         ) {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = "Guardar",
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Guardar", fontSize = 18.sp, color = Color.White)
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { navController.popBackStack() },
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp)
+                .clip(RoundedCornerShape(12.dp))
+        ) {
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "Cancelar",
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Cancelar",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
+
     }
 }
 

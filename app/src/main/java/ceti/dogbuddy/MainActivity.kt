@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ceti.dogbuddy.ui.screens.AditionalInfoScreen
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
+import ceti.dogbuddy.ui.screens.EditPetScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
@@ -61,6 +62,13 @@ fun AppNavigation() {
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
             composable(
+                route = "edit_pet/{mascotaId}",
+                arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val mascotaId = backStackEntry.arguments?.getString("mascotaId") ?: ""
+                EditPetScreen(navController = navController, mascotaId = mascotaId)
+            }
+            composable(
                 route = "info?raza={raza}&imagePath={imagePath}",
                 arguments = listOf(
                     navArgument("raza") { type = NavType.StringType },
@@ -71,7 +79,6 @@ fun AppNavigation() {
                 val imagePath = backStackEntry.arguments?.getString("imagePath")
                 val imageBitmap = imagePath?.let { BitmapFactory.decodeFile(it) }
 
-                // Asegúrate de pasar navController al composable
                 AditionalInfoScreen(
                     navController = navController,
                     raza = raza,
