@@ -101,15 +101,7 @@ fun CalendarDogBuddy(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                /*AsyncImage(
-                   model = "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/SrY7B7riWP/othxnuip.png",
-                   contentDescription = null,
-                   contentScale = ContentScale.Crop,
-                   modifier = Modifier
-                       .size(70.dp)
-                       .clip(RoundedCornerShape(50))
-                       .background(Color.Gray)
-               )*/
+
                 Image(
                     painter = painterResource(id = R.drawable.image8),
                     contentDescription = "Mascota",
@@ -124,35 +116,6 @@ fun CalendarDogBuddy(navController: NavController) {
                 }
             }
 
-            /*Box(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(Color.White)
-                    .shadow(elevation = 4.dp)
-                    .clickable { showDatePicker.value = true }
-                    .padding(16.dp)
-            ) {
-                val formattedDate = selectedDateMillis.value?.let {
-                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                    sdf.format(Date(it))
-                } ?: "Selecciona una fecha"
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = formattedDate,
-                        fontSize = 18.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Toca para abrir el calendario",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
-            }*/
 
             Spacer(modifier = Modifier.height(24.dp))
 
