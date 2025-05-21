@@ -6,6 +6,8 @@ import android.widget.NumberPicker
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -299,30 +301,59 @@ fun ReminderDialogView(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
-                onClick = {
-                    if (titleText.value.isNotBlank() && selectedDateMillis.value != null) {
-                        onSaveReminder(
-                            Reminder(
-                                titulo = titleText.value,
-                                fecha = formattedDate,
-                                hora = formattedTime
-                            )
-                        )
-                        showError.value = false
-                    } else {
-                        showError.value = true
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text("Guardar", color = Color.White)
+                Button(
+                    onClick = { onDismiss() },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Cancelar",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Cancelar",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        if (titleText.value.isNotBlank() && selectedDateMillis.value != null) {
+                            onSaveReminder(
+                                Reminder(
+                                    titulo = titleText.value,
+                                    fecha = formattedDate,
+                                    hora = formattedTime
+                                )
+                            )
+                            showError.value = false
+                        } else {
+                            showError.value = true
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Guardar", color = Color.White)
+                }
             }
         }
     }
 }
+
 
 
 

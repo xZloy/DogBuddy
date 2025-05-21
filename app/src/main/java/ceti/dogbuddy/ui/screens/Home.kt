@@ -29,12 +29,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ceti.dogbuddy.R
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+
 
 @Composable
 fun HomeDogBuddy(navController: NavController) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
+    var showFullScreenImage by remember { mutableStateOf(false) }
 
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
@@ -74,8 +82,9 @@ fun HomeDogBuddy(navController: NavController) {
     val dogImageBitmap = dogs.getOrNull(selectedDogIndex)?.get("photoBase")?.let { base64 ->
         try {
             val imageBytes = Base64.decode(base64, Base64.DEFAULT)
-            val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            bitmap.asImageBitmap()
+            val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            val bitmapSquare = cropToSquare(bitmapOriginal)
+            bitmapSquare.asImageBitmap()
         } catch (e: Exception) {
             null
         }
@@ -87,7 +96,9 @@ fun HomeDogBuddy(navController: NavController) {
             .background(Color(0xFFE3F2FD))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 60.dp) // Deja espacio para la barra inferior
         ) {
             Box(
                 modifier = Modifier
@@ -130,7 +141,9 @@ fun HomeDogBuddy(navController: NavController) {
                                 contentDescription = "Foto del perro",
                                 modifier = Modifier
                                     .size(70.dp)
-                                    .clip(RoundedCornerShape(50))
+                                    .clip(CircleShape)
+                                    .border(2.dp, Color(0xFF7DC1FD), CircleShape)
+                                    .clickable { showFullScreenImage = true }
                             )
                         } ?: Image(
                             painter = painterResource(id = R.drawable.image8),
@@ -138,6 +151,8 @@ fun HomeDogBuddy(navController: NavController) {
                             modifier = Modifier
                                 .size(70.dp)
                                 .clip(RoundedCornerShape(50))
+                                .border(2.dp, Color(0xFF7DC1FD), CircleShape)
+                                .clickable { showFullScreenImage = true }
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(
@@ -178,15 +193,9 @@ fun HomeDogBuddy(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            /*Text(
-                text = "¿Quieres que conozcamos más a tu perro?",
-                color = Color(0xFF01579B),
-                fontSize = 14.sp,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )*/
         }
 
+        // Barra inferior fija
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -206,7 +215,51 @@ fun HomeDogBuddy(navController: NavController) {
             }
         }
     }
+
+    // Dialog a pantalla completa para la imagen, fuera del layout principal
+    if (showFullScreenImage && dogImageBitmap != null) {
+        Dialog(
+            onDismissRequest = { showFullScreenImage = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.9f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    bitmap = dogImageBitmap,
+                    contentDescription = "Foto del perro grande",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clipToBounds()
+                        .clickable { showFullScreenImage = false },
+                    contentScale = ContentScale.Fit
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .size(36.dp)
+                        .background(Color.White.copy(alpha = 0.9f), shape = CircleShape)
+                        .clickable { showFullScreenImage = false },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "✕",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        lineHeight = 22.sp
+                    )
+                }
+            }
+        }
+    }
 }
+
+
 @Composable
 fun SectionButton(
     text: String,
