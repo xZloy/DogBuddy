@@ -2,9 +2,13 @@ package ceti.dogbuddy.ui.screens
 
 import android.app.TimePickerDialog
 import android.app.DatePickerDialog
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.widget.NumberPicker
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -16,15 +20,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import ceti.dogbuddy.R
+import ceti.dogbuddy.ui.viewmodels.DogViewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,13 +43,57 @@ data class Reminder(
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarDogBuddy(navController: NavController) {
+fun CalendarDogBuddy(navController: NavController, viewModel: DogViewModel = viewModel()) {
     val scrollState = rememberScrollState()
     val showDatePicker = remember { mutableStateOf(false) }
     val selectedDateMillis = remember { mutableStateOf<Long?>(null) }
     val datePickerState = rememberDatePickerState()
     val showReminderDialog = remember { mutableStateOf(false) }
     val reminders = remember { mutableStateListOf<Reminder>() }
+    val user = FirebaseAuth.getInstance().currentUser
+    val context = LocalContext.current
+    var showFullScreenImage by remember { mutableStateOf(false) }
+
+    if (user == null) {
+        Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
+        navController.navigate("login") {
+            popUpTo("home") { inclusive = true }
+        }
+        return
+    }
+
+    // Obtén los datos del ViewModel
+    val dogs by viewModel.dogs
+    val selectedDogIndex by viewModel.selectedDogIndex
+    val loading by viewModel.loading
+
+    // Carga las mascotas si no están cargadas
+    LaunchedEffect(user.uid) {
+        if (dogs.isEmpty()) {
+            viewModel.loadDogs(user.uid) {
+                Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Obtén la mascota seleccionada
+    val selectedDog = remember(dogs, selectedDogIndex) {
+        dogs.getOrNull(selectedDogIndex)
+    }
+
+    // Procesa la imagen
+    val dogImageBitmap = remember(selectedDog) {
+        selectedDog?.get("photoBase")?.let { base64 ->
+            try {
+                val imageBytes = Base64.decode(base64, Base64.DEFAULT)
+                val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                val bitmapSquare = cropToSquare(bitmapOriginal)
+                bitmapSquare.asImageBitmap()
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
     if (showDatePicker.value) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker.value = false },
@@ -99,23 +151,65 @@ fun CalendarDogBuddy(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            ) {
-
-                Image(
-                    painter = painterResource(id = R.drawable.image8),
-                    contentDescription = "Mascota",
-                    modifier = Modifier
-                        .size(70.dp) // Aumentamos el tamaño de la imagen
-                        .clip(RoundedCornerShape(50)) // Esquinas redondeadas
+            // Sección de mascota
+            if (loading) {
+                Text(
+                    "Cargando perfil de tu mascota...",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text("Firulais", fontSize = 22.sp, color = Color(0xFF01579B),  fontWeight = FontWeight.Bold)
-                    Text("Cambiar mascota", fontSize = 14.sp, color = Color(0xFF01579B))
-                }
+            } else {
+                selectedDog?.let { dog ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    ) {
+                        dogImageBitmap?.let {
+                            Image(
+                                bitmap = it,
+                                contentDescription = "Foto del perro",
+                                modifier = Modifier
+                                    .size(70.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, Color(0xFF7DC1FD), CircleShape)
+                                    .clickable { showFullScreenImage = true }
+                            )
+                        } ?: Image(
+                            painter = painterResource(id = R.drawable.image8),
+                            contentDescription = "Mascota",
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(RoundedCornerShape(50))
+                                .border(2.dp, Color(0xFF7DC1FD), CircleShape)
+                                .clickable { showFullScreenImage = true }
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(
+                            modifier = Modifier.clickable {
+                                if (dogs.isNotEmpty()) {
+                                    val newIndex = (selectedDogIndex + 1) % dogs.size
+                                    viewModel.setSelectedDogIndex(newIndex)
+                                }
+                            }
+                        ) {
+                            Text(
+                                dog["name"].orEmpty(),
+                                fontSize = 22.sp,
+                                color = Color(0xFF01579B),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Cambiar mascota",
+                                fontSize = 14.sp,
+                                color = Color(0xFF01579B)
+                            )
+                        }
+                    }
+                } ?: Text(
+                    text = "Aún no tienes perritos registrados 🐶",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
 

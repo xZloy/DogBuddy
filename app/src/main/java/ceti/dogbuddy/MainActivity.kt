@@ -88,7 +88,9 @@ fun AppNavigation() {
             composable("home") {
                 HomeDogBuddy(navController, viewModel = dogViewModel)
             }
-            composable("calendar") { CalendarDogBuddy(navController) }
+            composable("calendar") {
+                CalendarDogBuddy(navController, viewModel = dogViewModel)
+            }
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
