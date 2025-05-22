@@ -58,8 +58,8 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
     }
 
     val dogs by viewModel.dogs
-    val selectedDogIndex by viewModel.selectedDogIndex
     val loading by viewModel.loading
+    val selectedDogIndex by viewModel.selectedDogIndex
 
     LaunchedEffect(user.uid) {
         viewModel.loadDogs(user.uid) {

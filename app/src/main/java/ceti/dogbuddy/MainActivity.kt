@@ -22,6 +22,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,6 +37,7 @@ import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
 import ceti.dogbuddy.ui.screens.ScannerScreen
 import ceti.dogbuddy.ui.screens.UserScreen
+import ceti.dogbuddy.ui.viewmodels.DogViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.coroutines.resume
@@ -59,6 +61,7 @@ fun AppNavigation() {
     var startDestination by remember { mutableStateOf<String?>(null) }
     val view = LocalView.current
     val context = LocalContext.current
+    val dogViewModel: DogViewModel = viewModel()
 
     DisposableEffect(Unit) {
         val window = (view.context as Activity).window
@@ -82,12 +85,16 @@ fun AppNavigation() {
         NavHost(navController, startDestination = startDestination!!) {
             composable("login") { LoginDogBuddy(navController) }
             composable("register") { RegisterDogBuddy(navController) }
-            composable("home") { HomeDogBuddy(navController) }
+            composable("home") {
+                HomeDogBuddy(navController, viewModel = dogViewModel)
+            }
             composable("calendar") { CalendarDogBuddy(navController) }
             composable("newpass") { RecoverPassDogBuddy(navController) }
             composable("scaner") { ScannerScreen(navController) }
             composable("profile") { UserScreen(navController) }
-            composable("clean") { CleanScreen(navController) }
+            composable("clean") {
+                CleanScreen(navController, viewModel = dogViewModel)
+            }
             composable(
                 route = "edit_pet/{mascotaId}",
                 arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
