@@ -1,5 +1,7 @@
 package ceti.dogbuddy.ui.screens
 
+import android.app.Application
+import android.content.Context
 import android.util.Base64
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -36,10 +38,13 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 
 @Composable
-fun HomeDogBuddy(navController: NavController) {
+fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewModel()) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
@@ -52,29 +57,13 @@ fun HomeDogBuddy(navController: NavController) {
         return
     }
 
-    val firestore = FirebaseFirestore.getInstance()
-    var dogs by remember { mutableStateOf<List<Map<String, String>>>(emptyList()) }
-    var selectedDogIndex by remember { mutableStateOf(0) }
-    var loading by remember { mutableStateOf(true) }
+    val dogs by viewModel.dogs
+    val selectedDogIndex by viewModel.selectedDogIndex
+    val loading by viewModel.loading
 
     LaunchedEffect(user.uid) {
-        withContext(Dispatchers.IO) {
-            firestore.collection("pet")
-                .whereEqualTo("userId", user.uid)
-                .get()
-                .addOnSuccessListener { result ->
-                    val loadedDogs = result.documents.mapNotNull { doc ->
-                        val name = doc.getString("name")
-                        val photoBase = doc.getString("photoBase")
-                        if (name != null && photoBase != null) mapOf("name" to name, "photoBase" to photoBase) else null
-                    }
-                    dogs = loadedDogs
-                    loading = false
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
-                    loading = false
-                }
+        viewModel.loadDogs(user.uid) {
+            Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -98,7 +87,7 @@ fun HomeDogBuddy(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 60.dp) // Deja espacio para la barra inferior
+                .padding(bottom = 60.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -157,7 +146,8 @@ fun HomeDogBuddy(navController: NavController) {
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(
                             modifier = Modifier.clickable {
-                                selectedDogIndex = (selectedDogIndex + 1) % dogs.size
+                                val newIndex = (selectedDogIndex + 1) % dogs.size
+                                viewModel.setSelectedDogIndex(newIndex)
                             }
                         ) {
                             Text(dogName, fontSize = 22.sp, color = Color(0xFF01579B), fontWeight = FontWeight.Bold)
@@ -216,7 +206,7 @@ fun HomeDogBuddy(navController: NavController) {
         }
     }
 
-    // Dialog a pantalla completa para la imagen, fuera del layout principal
+    // Dialog a pantalla completa para la imagen
     if (showFullScreenImage && dogImageBitmap != null) {
         Dialog(
             onDismissRequest = { showFullScreenImage = false },

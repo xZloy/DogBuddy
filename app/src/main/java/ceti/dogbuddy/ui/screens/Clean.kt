@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.widget.Toast
@@ -7,38 +8,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -51,16 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.testing.TestNavHostController
 import ceti.dogbuddy.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import ceti.dogbuddy.ui.viewmodels.DogViewModel
+
 
 @Composable
-fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun CleanScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: DogViewModel = viewModel()
+) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
@@ -73,75 +58,80 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
         return
     }
 
-    val firestore = FirebaseFirestore.getInstance()
-    var dogs by remember { mutableStateOf<List<Map<String, String>>>(emptyList()) }
-    var selectedDogIndex by remember { mutableStateOf(0) }
-    var loading by remember { mutableStateOf(true) }
+    // Obtén los datos del ViewModel
+    val dogs by viewModel.dogs
+    val selectedDogIndex by viewModel.selectedDogIndex
+    val loading by viewModel.loading
 
+    // Carga las mascotas si no están cargadas
     LaunchedEffect(user.uid) {
-        withContext(Dispatchers.IO) {
-            firestore.collection("pet")
-                .whereEqualTo("userId", user.uid)
-                .get()
-                .addOnSuccessListener { result ->
-                    val loadedDogs = result.documents.mapNotNull { doc ->
-                        val name = doc.getString("name")
-                        val photoBase = doc.getString("photoBase")
-                        if (name != null && photoBase != null) mapOf("name" to name, "photoBase" to photoBase) else null
-                    }
-                    dogs = loadedDogs
-                    loading = false
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
-                    loading = false
-                }
+        if (dogs.isEmpty()) {
+            viewModel.loadDogs(user.uid) {
+                Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    val dogName = dogs.getOrNull(selectedDogIndex)?.get("name")
-    val dogImageBitmap = dogs.getOrNull(selectedDogIndex)?.get("photoBase")?.let { base64 ->
-        try {
-            val imageBytes = Base64.decode(base64, Base64.DEFAULT)
-            val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            val bitmapSquare = cropToSquare(bitmapOriginal)
-            bitmapSquare.asImageBitmap()
-        } catch (e: Exception) {
-            null
+    // Obtén la mascota seleccionada
+    val selectedDog = remember(dogs, selectedDogIndex) {
+        dogs.getOrNull(selectedDogIndex)
+    }
+
+    // Procesa la imagen
+    val dogImageBitmap = remember(selectedDog) {
+        selectedDog?.get("photoBase")?.let { base64 ->
+            try {
+                val imageBytes = Base64.decode(base64, Base64.DEFAULT)
+                val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                val bitmapSquare = cropToSquare(bitmapOriginal)
+                bitmapSquare.asImageBitmap()
+            } catch (e: Exception) {
+                null
+            }
         }
     }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE3F2FD))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(70.dp)
                     .background(color = Color(0xff01579b)),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.paw),
-                    contentDescription = "Paw",
+                Row(
                     modifier = Modifier
-                        .size(110.dp)
-                        .padding(bottom = 5.dp)
-                )
-
-                Text(
-                    text = "DogBuddy",
-                    color = Color.White,
-                    style = TextStyle(fontSize = 32.sp),
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(start = 20.dp)
-                        .padding(bottom = 5.dp)
-                )
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Flecha de regresar
+                    Image(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier
+                            .size(35.dp)
+                            .clickable {
+                                navController.popBackStack()
+                            }
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "DogBuddy",
+                        color = Color.White,
+                        style = TextStyle(fontSize = 32.sp),
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -150,17 +140,20 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
                 text = "Higiene y limpieza",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
-                style = TextStyle(
-                    fontSize = 24.sp),
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterHorizontally))
+                style = TextStyle(fontSize = 24.sp),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Sección de mascota
             if (loading) {
-                Text("Cargando perfil de tu mascota...", modifier = Modifier.align(Alignment.CenterHorizontally))
+                Text(
+                    "Cargando perfil de tu mascota...",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             } else {
-                if (dogName != null) {
+                selectedDog?.let { dog ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 24.dp)
@@ -187,26 +180,36 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(
                             modifier = Modifier.clickable {
-                                selectedDogIndex = (selectedDogIndex + 1) % dogs.size
+                                if (dogs.isNotEmpty()) {
+                                    val newIndex = (selectedDogIndex + 1) % dogs.size
+                                    viewModel.setSelectedDogIndex(newIndex)
+                                }
                             }
                         ) {
-                            Text(dogName, fontSize = 22.sp, color = Color(0xFF01579B), fontWeight = FontWeight.Bold)
-                            Text("Cambiar mascota", fontSize = 14.sp, color = Color(0xFF01579B))
+                            Text(
+                                dog["name"].orEmpty(),
+                                fontSize = 22.sp,
+                                color = Color(0xFF01579B),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Cambiar mascota",
+                                fontSize = 14.sp,
+                                color = Color(0xFF01579B)
+                            )
                         }
                     }
-                } else {
-                    Text(
-                        text = "Aún no tienes perritos registrados 🐶",
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
+                } ?: Text(
+                    text = "Aún no tienes perritos registrados 🐶",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Secciones
+            // Secciones de funcionalidad
             SectionButton("Baño y cuidado de pelaje", Color(0xFF4FC3F7), R.drawable.image28) {
                 navController.navigate("bath")
             }
@@ -222,10 +225,9 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
             SectionButton("Higiene bucal", Color(0xFF4FC3F7), R.drawable.image30) {
                 navController.navigate("teeth")
             }
-
         }
 
-
+        // Bottom Navigation
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -238,33 +240,15 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                BottomNavItem(
-                    icon = R.drawable.home,
-                    label = "Inicio",
-                    route = "home",
-                    navController = navController
-                )
-                BottomNavItem(
-                    icon = R.drawable.camera,
-                    label = "Scanear",
-                    route = "scaner",
-                    navController = navController
-                )
-                BottomNavItem(
-                    icon = R.drawable.calendar,
-                    label = "Calendario",
-                    route = "calendar",
-                    navController = navController
-                )
-                BottomNavItem(
-                    icon = R.drawable.user,
-                    label = "Perfil",
-                    route = "profile",
-                    navController = navController
-                )
+                BottomNavItem(R.drawable.home, "Inicio", "home", navController)
+                BottomNavItem(R.drawable.camera, "Scanear", "scaner", navController)
+                BottomNavItem(R.drawable.calendar, "Calendario", "calendar", navController)
+                BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
             }
         }
     }
+
+    // Diálogo para imagen a pantalla completa
     if (showFullScreenImage && dogImageBitmap != null) {
         Dialog(
             onDismissRequest = { showFullScreenImage = false },
@@ -307,9 +291,3 @@ fun CleanScreen(navController: NavController, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(widthDp = 360, heightDp = 800)
-@Composable
-private fun HigieneyLimpiezaPreview() {
-    val fakeNavController = TestNavHostController(LocalContext.current)
-    CleanScreen(navController = fakeNavController, modifier = Modifier)
-}

@@ -1,0 +1,45 @@
+package ceti.dogbuddy.ui.viewmodels
+
+import android.app.Application
+import android.content.Context
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+
+class DogViewModel(application: Application) : AndroidViewModel(application) {
+    private val prefs = application.getSharedPreferences("DogBuddyPrefs", Context.MODE_PRIVATE)
+
+    private var _selectedDogIndex = mutableStateOf(prefs.getInt("selected_dog_index", 0))
+    val selectedDogIndex: State<Int> = _selectedDogIndex
+
+    private var _dogs = mutableStateOf<List<Map<String, String>>>(emptyList())
+    val dogs: State<List<Map<String, String>>> = _dogs
+
+    private var _loading = mutableStateOf(true)
+    val loading: State<Boolean> = _loading
+
+    fun setSelectedDogIndex(index: Int) {
+        _selectedDogIndex.value = index
+        prefs.edit().putInt("selected_dog_index", index).apply()
+    }
+
+    fun loadDogs(userId: String, onError: () -> Unit) {
+        _loading.value = true
+        FirebaseFirestore.getInstance().collection("pet")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                _dogs.value = result.documents.mapNotNull { doc ->
+                    val name = doc.getString("name")
+                    val photoBase = doc.getString("photoBase")
+                    if (name != null && photoBase != null) mapOf("name" to name, "photoBase" to photoBase) else null
+                }
+                _loading.value = false
+            }
+            .addOnFailureListener {
+                onError()
+                _loading.value = false
+            }
+    }
+}
