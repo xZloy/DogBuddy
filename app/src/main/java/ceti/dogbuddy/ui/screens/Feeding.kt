@@ -1,6 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
-import android.content.Context
+
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.widget.Toast
@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,10 +38,13 @@ import androidx.navigation.NavController
 import ceti.dogbuddy.R
 import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+
 
 
 @Composable
-fun CleanScreen(
+fun FeedingScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -114,6 +116,7 @@ fun CleanScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Flecha de regresar
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
@@ -136,10 +139,11 @@ fun CleanScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Higiene y limpieza",
+                text = "Alimentacion Saludable",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
@@ -208,22 +212,61 @@ fun CleanScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(Color(0xFFE1F5FE), shape = RoundedCornerShape(8.dp))
+                    .border(1.dp, Color(0xFF01579B), RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Selecciona la mascota para obtener recomendaciones de alimentación.",
+                    color = Color(0xff01579b),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
+                    lineHeight = 24.sp
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Secciones de funcionalidad
-            SectionButton("Baño y cuidado de pelaje", Color(0xFF4FC3F7), R.drawable.image28) {
-                navController.navigate("bath")
+            SectionButton("Comenzar", Color(0xFF6FCF97), R.drawable.food) {
+                selectedDog?.get("name")?.let { dogName ->
+                    navController.navigate("pet_condition/$dogName")
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            SectionButton("Corte de uñas", Color(0xFF4FC3F7), R.drawable.image29) {
-                navController.navigate("nails")
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(8.dp))
+                    .border(1.dp, Color(0xFF66BB6A), RoundedCornerShape(8.dp))
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Información",
+                    tint = Color(0xFF01579B),
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Tras seleccionar la mascota, presiona 'Comenzar' para responder preguntas y recibir recomendaciones.",
+                    color = Color(0xff01579b),
+                    textAlign = TextAlign.Start,
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
+                    lineHeight = 22.sp
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SectionButton("Higiene bucal", Color(0xFF4FC3F7), R.drawable.image30) {
-                navController.navigate("teeth")
-            }
         }
 
         // Bottom Navigation
@@ -247,7 +290,6 @@ fun CleanScreen(
         }
     }
 
-    // Diálogo para imagen a pantalla completa
     if (showFullScreenImage && dogImageBitmap != null) {
         Dialog(
             onDismissRequest = { showFullScreenImage = false },
@@ -289,4 +331,3 @@ fun CleanScreen(
         }
     }
 }
-

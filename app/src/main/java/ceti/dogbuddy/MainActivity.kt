@@ -31,12 +31,18 @@ import ceti.dogbuddy.ui.screens.AditionalInfoScreen
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.EditPetScreen
 import ceti.dogbuddy.ui.screens.CleanScreen
+import ceti.dogbuddy.ui.screens.FeedingScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
+import ceti.dogbuddy.ui.screens.questions.PetConditionScreen
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
 import ceti.dogbuddy.ui.screens.ScannerScreen
 import ceti.dogbuddy.ui.screens.UserScreen
+import ceti.dogbuddy.ui.screens.questions.Nextscreen
+import ceti.dogbuddy.ui.screens.questions.Nextscreen2
+import ceti.dogbuddy.ui.screens.questions.Nextscreen3
+import ceti.dogbuddy.ui.screens.questions.RecommendedFoodScreen
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -96,6 +102,39 @@ fun AppNavigation() {
             composable("profile") { UserScreen(navController) }
             composable("clean") {
                 CleanScreen(navController, viewModel = dogViewModel)
+            }
+            composable("alimentacion") {
+                FeedingScreen(navController, viewModel = dogViewModel)
+            }
+            composable(
+                "pet_condition/{petName}",
+                arguments = listOf(navArgument("petName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                PetConditionScreen(navController, backStackEntry, viewModel = dogViewModel)
+            }
+            composable(
+                "next_screen/{petName}",
+                arguments = listOf(navArgument("petName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                Nextscreen(navController, backStackEntry, viewModel = dogViewModel)
+            }
+            composable(
+                "next_screen2/{petName}",
+                arguments = listOf(navArgument("petName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                Nextscreen2(navController, backStackEntry, viewModel = dogViewModel)
+            }
+            composable(
+                "next_screen3/{petName}",
+                arguments = listOf(navArgument("petName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                Nextscreen3(navController, backStackEntry, viewModel = dogViewModel)
+            }
+            composable(
+                "recommendedfood/{petName}",
+                arguments = listOf(navArgument("petName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                RecommendedFoodScreen(navController, backStackEntry, viewModel = dogViewModel)
             }
             composable(
                 route = "edit_pet/{mascotaId}",
