@@ -48,7 +48,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BathScreen(
+fun BrushTeethScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -144,7 +144,7 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Baño y cuidado de pelaje",
+                text = "Frecuencia de cepillado",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -216,71 +216,277 @@ fun BathScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Secciones de funcionalidad
-            SectionButton("Frecuencia de baño", Color(0xFF4FC3F7), R.drawable.image28) {
-                //TODO Agregar la funcionalidad al boton para cambiar la frecuencia
-                Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row (modifier = Modifier.align(Alignment.CenterHorizontally))
+            Column(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(start = 50.dp, end = 50.dp)
+            )
             {
-                Column {
+                Row ()
+                {
                     Text(
-                        text = "Recordatorio:",
+                        text = "Lunes",
                         fontSize = 22.sp,
                         color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                    Text(
-                        text = "3 Semanas",
-                        fontSize = 22.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                }
-
-                Spacer(modifier = Modifier.width(30.dp))
-
-                IconButton(
-                    onClick = {
-                        //TODO Funcionalidad del boton para activar el recordatorio
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccessAlarms,
-                        contentDescription = "Recordatorio",
-                        tint = Color.White
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
                     )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Lunes",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Martes",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Martes",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Miercoles",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Miercoles",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Jueves",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Jueves",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Viernes",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Viernes",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Sabado",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Sabado",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row ()
+                {
+                    Text(
+                        text = "Domingo",
+                        fontSize = 22.sp,
+                        color = Color(0xFF01579B),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(80.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.image30),
+                            contentDescription = "Domingo",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
 
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("shampoo")
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .width(300.dp)
-                    .height(100.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Text("Shampoo recomendado", fontSize = 22.sp, textAlign = TextAlign.Center)
-            }
-
         }
-
         // Bottom Navigation
         Box(
             modifier = Modifier

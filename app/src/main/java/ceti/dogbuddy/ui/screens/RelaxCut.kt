@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
+
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessAlarms
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +31,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,7 +51,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BathScreen(
+fun RelaxCutScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -144,7 +147,7 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Baño y cuidado de pelaje",
+                text = "Corte sin estres",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -216,36 +219,39 @@ fun BathScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Secciones de funcionalidad
-            SectionButton("Frecuencia de baño", Color(0xFF4FC3F7), R.drawable.image28) {
-                //TODO Agregar la funcionalidad al boton para cambiar la frecuencia
-                Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(all = 30.dp)
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0x7f4fc3f7))
+            )
+            {
+                Column{
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(all = 10.dp),
+                        text = "Antes de intentar cortar, dedica unos días a tocarle suavemente las patas y las uñas, sin herramientas. Recompénsalo cada vez para que asocie el contacto con algo positivo.",
+                        fontSize = 22.sp,
+                        color = Color(0xff000000),
+                        fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row (modifier = Modifier.align(Alignment.CenterHorizontally))
+            Row (
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            )
             {
-                Column {
-                    Text(
-                        text = "Recordatorio:",
-                        fontSize = 22.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                    Text(
-                        text = "3 Semanas",
-                        fontSize = 22.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                }
-
-                Spacer(modifier = Modifier.width(30.dp))
-
                 IconButton(
                     onClick = {
-                        //TODO Funcionalidad del boton para activar el recordatorio
+                        //TODO me imagino que es un viewpager
                         Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier
@@ -254,30 +260,37 @@ fun BathScreen(
                         .padding(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AccessAlarms,
-                        contentDescription = "Recordatorio",
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Izquierda",
                         tint = Color.White
                     )
                 }
 
+                Spacer(modifier = Modifier.width(100.dp))
+
+                IconButton(
+                    onClick = {
+                        //TODO me imagino que es un viewpager
+                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color(0xFF4FC3F7), shape = CircleShape)
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Derecha",
+                        tint = Color.White,
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = -1f
+                        }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    navController.navigate("shampoo")
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .width(300.dp)
-                    .height(100.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Text("Shampoo recomendado", fontSize = 22.sp, textAlign = TextAlign.Center)
-            }
 
         }
 

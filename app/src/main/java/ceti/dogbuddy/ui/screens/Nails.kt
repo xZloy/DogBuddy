@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.screens
 
+
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -48,7 +49,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BathScreen(
+fun NailsScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -144,7 +145,7 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Baño y cuidado de pelaje",
+                text = "Corte de uñas",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -216,14 +217,6 @@ fun BathScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Secciones de funcionalidad
-            SectionButton("Frecuencia de baño", Color(0xFF4FC3F7), R.drawable.image28) {
-                //TODO Agregar la funcionalidad al boton para cambiar la frecuencia
-                Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             Row (modifier = Modifier.align(Alignment.CenterHorizontally))
             {
                 Column {
@@ -264,9 +257,16 @@ fun BathScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Secciones de funcionalidad
+            SectionButton("Corte sin estres", Color(0xFF4FC3F7), R.drawable.image29) {
+                navController.navigate("relaxCut")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
-                    navController.navigate("shampoo")
+                    //TODO Definir que rayos va a hacer este boton
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
@@ -276,7 +276,7 @@ fun BathScreen(
                     .height(100.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text("Shampoo recomendado", fontSize = 22.sp, textAlign = TextAlign.Center)
+                Text("¿Como saber si ya toca corte de uñas?", fontSize = 22.sp, textAlign = TextAlign.Center)
             }
 
         }

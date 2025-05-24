@@ -48,7 +48,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BathScreen(
+fun TeethScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -144,7 +144,7 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Baño y cuidado de pelaje",
+                text = "Higiene bucal",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -217,9 +217,8 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Secciones de funcionalidad
-            SectionButton("Frecuencia de baño", Color(0xFF4FC3F7), R.drawable.image28) {
-                //TODO Agregar la funcionalidad al boton para cambiar la frecuencia
-                Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
+            SectionButton("Frecuencia de cepillado", Color(0xFF4FC3F7), R.drawable.image30) {
+                navController.navigate("brushTeeth")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -234,7 +233,7 @@ fun BathScreen(
                         fontWeight = FontWeight.Bold)
 
                     Text(
-                        text = "3 Semanas",
+                        text = "3 dias a la semana",
                         fontSize = 22.sp,
                         color = Color(0xFF01579B),
                         fontWeight = FontWeight.Bold)
@@ -266,7 +265,7 @@ fun BathScreen(
 
             Button(
                 onClick = {
-                    navController.navigate("shampoo")
+                    navController.navigate("supportProducts")
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
@@ -276,7 +275,24 @@ fun BathScreen(
                     .height(100.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text("Shampoo recomendado", fontSize = 22.sp, textAlign = TextAlign.Center)
+                Text("Productos de apoyo", fontSize = 22.sp, textAlign = TextAlign.Center)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate("badTeeth")
+                },
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .width(300.dp)
+                    .height(100.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text("Identificación de problemas bucales", fontSize = 22.sp, textAlign = TextAlign.Center)
             }
 
         }

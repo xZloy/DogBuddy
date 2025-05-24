@@ -48,7 +48,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BathScreen(
+fun ProductTeethScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -144,7 +144,7 @@ fun BathScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Baño y cuidado de pelaje",
+                text = "Productos de apoyo",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -216,68 +216,29 @@ fun BathScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Secciones de funcionalidad
-            SectionButton("Frecuencia de baño", Color(0xFF4FC3F7), R.drawable.image28) {
-                //TODO Agregar la funcionalidad al boton para cambiar la frecuencia
-                Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row (modifier = Modifier.align(Alignment.CenterHorizontally))
-            {
-                Column {
-                    Text(
-                        text = "Recordatorio:",
-                        fontSize = 22.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                    Text(
-                        text = "3 Semanas",
-                        fontSize = 22.sp,
-                        color = Color(0xFF01579B),
-                        fontWeight = FontWeight.Bold)
-
-                }
-
-                Spacer(modifier = Modifier.width(30.dp))
-
-                IconButton(
-                    onClick = {
-                        //TODO Funcionalidad del boton para activar el recordatorio
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccessAlarms,
-                        contentDescription = "Recordatorio",
-                        tint = Color.White
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate("shampoo")
-                },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
+            Box(
                 modifier = Modifier
-                    .padding(top = 20.dp)
-                    .width(300.dp)
-                    .height(100.dp)
                     .align(Alignment.CenterHorizontally)
-            ) {
-                Text("Shampoo recomendado", fontSize = 22.sp, textAlign = TextAlign.Center)
+                    .padding(all = 30.dp)
+                    .fillMaxWidth()
+                    .height(500.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0x7f4fc3f7))
+            )
+            {
+                Column{
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(all = 10.dp),
+                        text = "Enjuagues bucales aptos para perros. Gel dental aplicable sin cepillado. Aditivos alimenticios que ayudan a controlar el sarro.",
+                        fontSize = 22.sp,
+                        color = Color(0xff000000),
+                        fontWeight = FontWeight.Bold)
+                }
             }
+
+
 
         }
 
