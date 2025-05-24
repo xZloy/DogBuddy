@@ -153,6 +153,7 @@ fun RecoverPassDogBuddy(navController: NavController, modifier: Modifier = Modif
                     if(email.isEmpty()){
                         Toast.makeText(context,"Favor de llenar todos los campos",Toast.LENGTH_SHORT).show()
                     }else {
+                        Toast.makeText(context,"Correo enviado",Toast.LENGTH_SHORT).show()
                         auth.sendPasswordResetEmail(email)
                     }
 

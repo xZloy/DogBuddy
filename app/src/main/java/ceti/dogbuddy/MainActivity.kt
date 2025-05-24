@@ -28,16 +28,24 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ceti.dogbuddy.ui.screens.AditionalInfoScreen
+import ceti.dogbuddy.ui.screens.BadTeethScreen
+import ceti.dogbuddy.ui.screens.BathScreen
+import ceti.dogbuddy.ui.screens.BrushTeethScreen
 import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.EditPetScreen
 import ceti.dogbuddy.ui.screens.CleanScreen
 import ceti.dogbuddy.ui.screens.FeedingScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
+import ceti.dogbuddy.ui.screens.NailsScreen
+import ceti.dogbuddy.ui.screens.ProductTeethScreen
 import ceti.dogbuddy.ui.screens.questions.PetConditionScreen
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
+import ceti.dogbuddy.ui.screens.RelaxCutScreen
 import ceti.dogbuddy.ui.screens.ScannerScreen
+import ceti.dogbuddy.ui.screens.ShampooScreen
+import ceti.dogbuddy.ui.screens.TeethScreen
 import ceti.dogbuddy.ui.screens.UserScreen
 import ceti.dogbuddy.ui.screens.questions.Nextscreen
 import ceti.dogbuddy.ui.screens.questions.Nextscreen2
@@ -103,6 +111,29 @@ fun AppNavigation() {
             composable("clean") {
                 CleanScreen(navController, viewModel = dogViewModel)
             }
+            composable("bath") {
+                BathScreen(navController, viewModel = dogViewModel)
+            }
+            composable("shampoo") {
+                ShampooScreen(navController, viewModel = dogViewModel)
+            }
+            composable("nails") {
+                NailsScreen(navController, viewModel = dogViewModel)
+            }
+            composable("relaxCut") {
+                RelaxCutScreen(navController, viewModel = dogViewModel)
+            }
+            composable("teeth") {
+               TeethScreen(navController, viewModel = dogViewModel)
+            }
+            composable("brushTeeth") {
+                BrushTeethScreen(navController, viewModel = dogViewModel)
+            }
+            composable("supportProducts") {
+                ProductTeethScreen(navController, viewModel = dogViewModel)
+            }
+            composable("badTeeth") {
+                BadTeethScreen(navController, viewModel = dogViewModel)
             composable("alimentacion") {
                 FeedingScreen(navController, viewModel = dogViewModel)
             }
