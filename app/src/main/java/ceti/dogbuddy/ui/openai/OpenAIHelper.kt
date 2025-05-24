@@ -9,16 +9,16 @@ import retrofit2.http.POST
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
+import ceti.dogbuddy.BuildConfig
 // ===== Retrofit Client =====
 
 object OpenAIClient {
     private const val BASE_URL = "https://api.openai.com/v1/"
-    private const val API_KEY = "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"  // <-- tu clave aquí
 
     private val authInterceptor = Interceptor { chain ->
+        val apiKey = BuildConfig.OPENAI_API_KEY
         val request = chain.request().newBuilder()
-            .addHeader("Authorization", "Bearer $API_KEY")
+            .addHeader("Authorization", "Bearer $apiKey")
             .build()
         chain.proceed(request)
     }
