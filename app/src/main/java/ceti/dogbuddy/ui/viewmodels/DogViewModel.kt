@@ -3,6 +3,7 @@ package ceti.dogbuddy.ui.viewmodels
 import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import ceti.dogbuddy.ui.screens.Reminder
@@ -19,6 +20,13 @@ class DogViewModel(application: Application) : AndroidViewModel(application) {
 
     private var _loading = mutableStateOf(true)
     val loading: State<Boolean> = _loading
+
+    // Variables de alimentacion para OpenAI
+    var selectedHealthConditions = mutableStateListOf<String>()
+    var selectedDietPreference = mutableStateOf<String?>(null)
+    var selectedProteins = mutableStateListOf<String>()
+    var selectedBenefits = mutableStateListOf<String>()
+
 
     fun setSelectedDogIndex(index: Int) {
         _selectedDogIndex.value = index
