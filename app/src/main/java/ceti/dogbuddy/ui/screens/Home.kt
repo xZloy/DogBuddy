@@ -179,7 +179,8 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
             Spacer(modifier = Modifier.height(16.dp))
 
             SectionButton("Trucos y juegos", Color(0xFFF78F4F), R.drawable.play) {
-                navController.navigate("juegos")
+                //navController.navigate("juegos")
+                Toast.makeText(context,"Por implementar",Toast.LENGTH_SHORT).show()
             }
 
             Spacer(modifier = Modifier.height(24.dp))
