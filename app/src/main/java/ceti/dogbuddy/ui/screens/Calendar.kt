@@ -33,13 +33,15 @@ import coil.compose.AsyncImage
 import ceti.dogbuddy.R
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class Reminder(
-    val titulo: String,
-    val fecha: String,
-    val hora: String
+    var titulo: String = "",
+    var fecha: String = "",
+    var hora: String = ""
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,12 +69,23 @@ fun CalendarDogBuddy(navController: NavController, viewModel: DogViewModel = vie
     val selectedDogIndex by viewModel.selectedDogIndex
     val loading by viewModel.loading
 
-    // Carga las mascotas si no están cargadas
-    LaunchedEffect(user.uid) {
+
+    /*LaunchedEffect(user.uid) {
         if (dogs.isEmpty()) {
             viewModel.loadDogs(user.uid) {
                 Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
             }
+        }
+    }*/
+    LaunchedEffect(user.uid, selectedDogIndex) {
+        if (dogs.isNotEmpty() && selectedDogIndex in dogs.indices) {
+            val dogId = dogs[selectedDogIndex]["id"]
+            viewModel.loadAppointments(user.uid, dogId) { loadedReminders ->
+                reminders.clear()
+                reminders.addAll(loadedReminders)
+            }
+        } else {
+            reminders.clear()
         }
     }
 
@@ -258,8 +271,11 @@ fun CalendarDogBuddy(navController: NavController, viewModel: DogViewModel = vie
             BottomNavigationBar(navController)
         }
 
-        if (showReminderDialog.value) {
+        if (showReminderDialog.value && selectedDog != null) {
+            val dogId = selectedDog["id"] ?: ""
             ReminderDialogView(
+                userId = user.uid,
+                dogId = dogId,
                 onDismiss = { showReminderDialog.value = false },
                 onSaveReminder = { reminder ->
                     reminders.add(reminder)
@@ -274,6 +290,8 @@ fun CalendarDogBuddy(navController: NavController, viewModel: DogViewModel = vie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderDialogView(
+    userId: String,
+    dogId: String,
     onDismiss: () -> Unit,
     onSaveReminder: (Reminder) -> Unit
 ) {
@@ -283,6 +301,8 @@ fun ReminderDialogView(
     val datePickerState = rememberDatePickerState()
     val selectedHour = remember { mutableStateOf(12) }
     val selectedMinute = remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    val firestore = FirebaseFirestore.getInstance()
 
     val formattedDate = selectedDateMillis.value?.let {
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -294,11 +314,7 @@ fun ReminderDialogView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(Color(0x99000000), Color(0x66000000))
-                )
-            )
+            .background(Brush.verticalGradient(listOf(Color(0x99000000), Color(0x66000000))))
             .clickable(onClick = onDismiss)
     ) {
         Column(
@@ -310,13 +326,7 @@ fun ReminderDialogView(
                 .fillMaxWidth(0.9f)
                 .clickable(enabled = false) {}
         ) {
-            Text(
-                text = "Agregar Recordatorio",
-                color = Color(0xFF01579B),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Text("Agregar Recordatorio", color = Color(0xFF01579B), fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -343,15 +353,9 @@ fun ReminderDialogView(
                 color = Color(0xFFE3F2FD),
                 tonalElevation = 4.dp,
                 shadowElevation = 2.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
             ) {
-                DatePicker(
-                    state = datePickerState,
-                    showModeToggle = false,
-                    modifier = Modifier.padding(12.dp)
-                )
+                DatePicker(state = datePickerState, showModeToggle = false, modifier = Modifier.padding(12.dp))
             }
 
             LaunchedEffect(datePickerState.selectedDateMillis) {
@@ -363,86 +367,36 @@ fun ReminderDialogView(
             Text("Hora", fontWeight = FontWeight.Medium, color = Color(0xFF01579B))
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                NumberPicker(
-                    value = selectedHour.value,
-                    range = 0..23,
-                    onValueChange = { selectedHour.value = it },
-                    label = "Hora"
-                )
-                NumberPicker(
-                    value = selectedMinute.value,
-                    range = 0..59,
-                    onValueChange = { selectedMinute.value = it },
-                    label = "Minutos"
-                )
+                NumberPicker(value = selectedHour.value, range = 0..23, onValueChange = { selectedHour.value = it }, label = "Hora")
+                NumberPicker(value = selectedMinute.value, range = 0..59, onValueChange = { selectedMinute.value = it }, label = "Minutos")
             }
 
             if (showError.value && (titleText.value.isBlank() || selectedDateMillis.value == null)) {
-                Text(
-                    text = "Por favor completa todos los campos.",
-                    color = Color.Red,
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
+                Text("Por favor completa todos los campos.", color = Color.Red, fontSize = 14.sp, modifier = Modifier.padding(top = 12.dp).align(Alignment.CenterHorizontally))
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Button(
+                onClick = {
+                    if (titleText.value.isNotBlank() && selectedDateMillis.value != null) {
+                        val reminder = Reminder(titulo = titleText.value, fecha = formattedDate, hora = formattedTime)
+                        firestore.collection("pet").document(dogId).collection("citas").add(reminder)
+                            .addOnSuccessListener { onSaveReminder(reminder) }
+                            .addOnFailureListener { Toast.makeText(context, "Error al guardar cita", Toast.LENGTH_SHORT).show() }
+                        showError.value = false
+                    } else {
+                        showError.value = true
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Button(
-                    onClick = { onDismiss() },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Cancelar",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Cancelar",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        if (titleText.value.isNotBlank() && selectedDateMillis.value != null) {
-                            onSaveReminder(
-                                Reminder(
-                                    titulo = titleText.value,
-                                    fecha = formattedDate,
-                                    hora = formattedTime
-                                )
-                            )
-                            showError.value = false
-                        } else {
-                            showError.value = true
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4FC3F7)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Guardar", color = Color.White)
-                }
+                Text("Guardar", color = Color.White)
             }
         }
     }

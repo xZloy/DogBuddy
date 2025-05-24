@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import ceti.dogbuddy.ui.screens.Reminder
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DogViewModel(application: Application) : AndroidViewModel(application) {
@@ -33,13 +34,36 @@ class DogViewModel(application: Application) : AndroidViewModel(application) {
                 _dogs.value = result.documents.mapNotNull { doc ->
                     val name = doc.getString("name")
                     val photoBase = doc.getString("photoBase")
-                    if (name != null && photoBase != null) mapOf("name" to name, "photoBase" to photoBase) else null
+                    if (name != null && photoBase != null) mapOf(
+                        "id" to doc.id,
+                        "name" to name,
+                        "photoBase" to photoBase
+                    ) else null
                 }
                 _loading.value = false
             }
             .addOnFailureListener {
                 onError()
                 _loading.value = false
+            }
+    }
+    fun loadAppointments(userId: String, dogId: String?, onLoaded: (List<Reminder>) -> Unit) {
+        if (dogId.isNullOrBlank()) {
+            onLoaded(emptyList())
+            return
+        }
+
+        FirebaseFirestore.getInstance()
+            .collection("pet")
+            .document(dogId)
+            .collection("citas")
+            .get()
+            .addOnSuccessListener { result ->
+                val reminders = result.documents.mapNotNull { it.toObject(Reminder::class.java) }
+                onLoaded(reminders)
+            }
+            .addOnFailureListener {
+                onLoaded(emptyList())
             }
     }
 }
