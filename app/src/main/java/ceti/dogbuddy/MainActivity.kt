@@ -124,7 +124,7 @@ fun AppNavigation() {
                 RelaxCutScreen(navController, viewModel = dogViewModel)
             }
             composable("teeth") {
-               TeethScreen(navController, viewModel = dogViewModel)
+                TeethScreen(navController, viewModel = dogViewModel)
             }
             composable("brushTeeth") {
                 BrushTeethScreen(navController, viewModel = dogViewModel)
@@ -134,67 +134,68 @@ fun AppNavigation() {
             }
             composable("badTeeth") {
                 BadTeethScreen(navController, viewModel = dogViewModel)
+            }
             composable("alimentacion") {
                 FeedingScreen(navController, viewModel = dogViewModel)
             }
             composable(
-                "pet_condition/{petName}",
-                arguments = listOf(navArgument("petName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                PetConditionScreen(navController, backStackEntry, viewModel = dogViewModel)
+                    "pet_condition/{petName}",
+                    arguments = listOf(navArgument("petName") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    PetConditionScreen(navController, backStackEntry, viewModel = dogViewModel)
             }
             composable(
-                "next_screen/{petName}",
-                arguments = listOf(navArgument("petName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                Nextscreen(navController, backStackEntry, viewModel = dogViewModel)
+                    "next_screen/{petName}",
+                    arguments = listOf(navArgument("petName") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    Nextscreen(navController, backStackEntry, viewModel = dogViewModel)
             }
             composable(
-                "next_screen2/{petName}",
-                arguments = listOf(navArgument("petName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                Nextscreen2(navController, backStackEntry, viewModel = dogViewModel)
+                    "next_screen2/{petName}",
+                    arguments = listOf(navArgument("petName") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    Nextscreen2(navController, backStackEntry, viewModel = dogViewModel)
             }
-            composable(
-                "next_screen3/{petName}",
-                arguments = listOf(navArgument("petName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                Nextscreen3(navController, backStackEntry, viewModel = dogViewModel)
-            }
-            composable(
-                "recommendedfood/{petName}",
-                arguments = listOf(navArgument("petName") { type = NavType.StringType })
-            ) { backStackEntry ->
-                RecommendedFoodScreen(navController, backStackEntry, viewModel = dogViewModel)
-            }
-            composable(
-                route = "edit_pet/{mascotaId}",
-                arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val mascotaId = backStackEntry.arguments?.getString("mascotaId") ?: ""
-                EditPetScreen(navController = navController, mascotaId = mascotaId)
-            }
-            composable(
-                route = "info?raza={raza}&imagePath={imagePath}",
-                arguments = listOf(
-                    navArgument("raza") { type = NavType.StringType },
-                    navArgument("imagePath") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val raza = backStackEntry.arguments?.getString("raza") ?: "Desconocido"
-                val imagePath = backStackEntry.arguments?.getString("imagePath")
-                val imageBitmap = imagePath?.let { BitmapFactory.decodeFile(it) }
+                composable(
+                    "next_screen3/{petName}",
+                    arguments = listOf(navArgument("petName") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    Nextscreen3(navController, backStackEntry, viewModel = dogViewModel)
+                }
+                composable(
+                    "recommendedfood/{petName}",
+                    arguments = listOf(navArgument("petName") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    RecommendedFoodScreen(navController, backStackEntry, viewModel = dogViewModel)
+                }
+                composable(
+                    route = "edit_pet/{mascotaId}",
+                    arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val mascotaId = backStackEntry.arguments?.getString("mascotaId") ?: ""
+                    EditPetScreen(navController = navController, mascotaId = mascotaId)
+                }
+                composable(
+                    route = "info?raza={raza}&imagePath={imagePath}",
+                    arguments = listOf(
+                        navArgument("raza") { type = NavType.StringType },
+                        navArgument("imagePath") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val raza = backStackEntry.arguments?.getString("raza") ?: "Desconocido"
+                    val imagePath = backStackEntry.arguments?.getString("imagePath")
+                    val imageBitmap = imagePath?.let { BitmapFactory.decodeFile(it) }
 
-                AditionalInfoScreen(
-                    navController = navController,
-                    raza = raza,
-                    imageBitmap = imageBitmap
-                )
-            }
+                    AditionalInfoScreen(
+                        navController = navController,
+                        raza = raza,
+                        imageBitmap = imageBitmap
+                    )
+                }
 
+            }
         }
     }
-}
 
 suspend fun getStartDestination(): String {
     val auth = FirebaseAuth.getInstance()
@@ -217,3 +218,4 @@ suspend fun getStartDestination(): String {
             }
     }
 }
+
