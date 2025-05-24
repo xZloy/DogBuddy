@@ -232,6 +232,9 @@ fun Nextscreen2(
 
             Button(
                 onClick = {
+                    viewModel.selectedProteins.clear()
+                    viewModel.selectedProteins.addAll(selectedProteins)
+
                     selectedDog?.get("name")?.let { dogName ->
                         navController.navigate("next_screen3/$dogName")
                     }

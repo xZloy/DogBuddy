@@ -254,6 +254,8 @@ fun PetConditionScreen(
 
             Button(
                 onClick = {
+                    viewModel.selectedHealthConditions.clear()
+                    viewModel.selectedHealthConditions.addAll(selectedConditions)
                     selectedDog?.get("name")?.let { dogName ->
                         navController.navigate("next_screen/$dogName")
                     }

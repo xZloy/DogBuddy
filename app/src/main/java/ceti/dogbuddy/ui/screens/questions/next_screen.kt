@@ -234,6 +234,7 @@ fun Nextscreen(
 
             Button(
                 onClick = {
+                    viewModel.selectedDietPreference.value = selectedOption
                     selectedDog?.get("name")?.let { dogName ->
                         navController.navigate("next_screen2/$dogName")
                     }

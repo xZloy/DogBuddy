@@ -272,6 +272,9 @@ fun Nextscreen3(
 
             Button(
                 onClick = {
+                    viewModel.selectedBenefits.clear()
+                    viewModel.selectedBenefits.addAll(selectedConditions)
+
                     selectedDog?.get("name")?.let { dogName ->
                         navController.navigate("recommendedfood/$dogName")
                     }

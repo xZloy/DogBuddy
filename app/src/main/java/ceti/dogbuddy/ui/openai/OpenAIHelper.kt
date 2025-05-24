@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.openai
 
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Interceptor
 import retrofit2.Retrofit
@@ -63,9 +64,8 @@ data class Choice(
 
 // ===== Public Function to Call API =====
 
-fun getDogRecommendations(dogName: String, onResult: (String?) -> Unit) {
+fun getDogRecommendations(prompt: String, onResult: (String?) -> Unit) {
     val api = OpenAIClient.retrofit.create(OpenAIApi::class.java)
-    val prompt = "Give me detailed care tips and recommendations for a dog named $dogName."
 
     val request = OpenAIRequest(
         messages = listOf(Message("user", prompt))
@@ -73,12 +73,20 @@ fun getDogRecommendations(dogName: String, onResult: (String?) -> Unit) {
 
     api.getChatCompletion(request).enqueue(object : Callback<OpenAIResponse> {
         override fun onResponse(call: Call<OpenAIResponse>, response: Response<OpenAIResponse>) {
-            val answer = response.body()?.choices?.firstOrNull()?.message?.content
-            onResult(answer)
+            Log.d("OpenAI", "Response: ${response.raw()}, Body: ${response.body()}, ErrorBody: ${response.errorBody()?.string()}")
+
+            if (response.isSuccessful) {
+                val answer = response.body()?.choices?.firstOrNull()?.message?.content
+                onResult(answer)
+            } else {
+                onResult(null)
+            }
         }
 
         override fun onFailure(call: Call<OpenAIResponse>, t: Throwable) {
+            Log.e("OpenAI", "Request failed", t)
             onResult(null)
         }
     })
 }
+
