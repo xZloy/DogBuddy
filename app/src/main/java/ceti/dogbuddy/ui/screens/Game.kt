@@ -1,50 +1,52 @@
 package ceti.dogbuddy.ui.screens
 
-import android.app.Application
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.util.Base64
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import ceti.dogbuddy.R
-import android.graphics.BitmapFactory
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import ceti.dogbuddy.R
+import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 
 @Composable
-fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewModel()) {
+fun GameScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: DogViewModel = viewModel()
+) {
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
@@ -57,69 +59,100 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
         return
     }
 
+    // Obtén los datos del ViewModel
     val dogs by viewModel.dogs
-    val loading by viewModel.loading
     val selectedDogIndex by viewModel.selectedDogIndex
+    val loading by viewModel.loading
 
+    // Carga las mascotas si no están cargadas
     LaunchedEffect(user.uid) {
-        viewModel.loadDogs(user.uid) {
-            Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
+        if (dogs.isEmpty()) {
+            viewModel.loadDogs(user.uid) {
+                Toast.makeText(context, "Error al cargar mascotas", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    val dogName = dogs.getOrNull(selectedDogIndex)?.get("name")
-    val dogImageBitmap = dogs.getOrNull(selectedDogIndex)?.get("photoBase")?.let { base64 ->
-        try {
-            val imageBytes = Base64.decode(base64, Base64.DEFAULT)
-            val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            val bitmapSquare = cropToSquare(bitmapOriginal)
-            bitmapSquare.asImageBitmap()
-        } catch (e: Exception) {
-            null
+    // Obtén la mascota seleccionada
+    val selectedDog = remember(dogs, selectedDogIndex) {
+        dogs.getOrNull(selectedDogIndex)
+    }
+
+    // Procesa la imagen
+    val dogImageBitmap = remember(selectedDog) {
+        selectedDog?.get("photoBase")?.let { base64 ->
+            try {
+                val imageBytes = Base64.decode(base64, Base64.DEFAULT)
+                val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                val bitmapSquare = cropToSquare(bitmapOriginal)
+                bitmapSquare.asImageBitmap()
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE3F2FD))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 60.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF01579B))
-                    .height(70.dp),
-                contentAlignment = Alignment.Center
+                    .height(70.dp)
+                    .background(color = Color(0xff01579b)),
+                contentAlignment = Alignment.BottomCenter
             ) {
-                Text(
-                    text = "DogBuddy",
-                    fontSize = 24.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier
+                            .size(35.dp)
+                            .clickable { navController.popBackStack() },
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "DogBuddy",
+                        color = Color.White,
+                        style = TextStyle(fontSize = 32.sp),
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "¡Bienvenido a DogBuddy!",
-                color = Color(0xFF01579B),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                text = "Trucos y juegos",
+                color = Color(0xff01579b),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 24.sp),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Sección de mascota
             if (loading) {
-                Text("Cargando perfil de tu mascota...", modifier = Modifier.align(Alignment.CenterHorizontally))
+                Text(
+                    "Cargando perfil de tu mascota...",
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             } else {
-                if (dogName != null) {
+                selectedDog?.let { dog ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 24.dp)
@@ -146,46 +179,49 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(
                             modifier = Modifier.clickable {
-                                val newIndex = (selectedDogIndex + 1) % dogs.size
-                                viewModel.setSelectedDogIndex(newIndex)
+                                if (dogs.isNotEmpty()) {
+                                    val newIndex = (selectedDogIndex + 1) % dogs.size
+                                    viewModel.setSelectedDogIndex(newIndex)
+                                }
                             }
                         ) {
-                            Text(dogName, fontSize = 22.sp, color = Color(0xFF01579B), fontWeight = FontWeight.Bold)
-                            Text("Cambiar mascota", fontSize = 14.sp, color = Color(0xFF01579B))
+                            Text(
+                                dog["name"].orEmpty(),
+                                fontSize = 22.sp,
+                                color = Color(0xFF01579B),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Cambiar mascota",
+                                fontSize = 14.sp,
+                                color = Color(0xFF01579B)
+                            )
                         }
                     }
-                } else {
-                    Text(
-                        text = "Aún no tienes perritos registrados 🐶",
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
+                } ?: Text(
+                    text = "Aún no tienes perritos registrados 🐶",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
-            SectionButton("Alimentación Saludable", Color(0xFF6FCF97), R.drawable.image5) {
-                navController.navigate("alimentacion")
+            // Secciones de funcionalidad
+            SectionButton("Trucos", Color(0xFFF78F4F), R.drawable.tricks) {
+                navController.navigate("trucos")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
-            SectionButton("Higiene y limpieza", Color(0xFF4FC3F7), R.drawable.clean) {
-                navController.navigate("clean")
+            SectionButton("Juegos", Color(0xFFF78F4F), R.drawable.play) {
+                navController.navigate("games")
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SectionButton("Trucos y juegos", Color(0xFFF78F4F), R.drawable.play) {
-                navController.navigate("juegos")
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Barra inferior fija
+        // Bottom Navigation
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -206,7 +242,7 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
         }
     }
 
-    // Dialog a pantalla completa para la imagen
+    // Diálogo para imagen a pantalla completa
     if (showFullScreenImage && dogImageBitmap != null) {
         Dialog(
             onDismissRequest = { showFullScreenImage = false },
@@ -246,69 +282,5 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun SectionButton(
-    text: String,
-    color: Color,
-    image: Int,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(color)
-            .clickable { onClick() }
-            .padding(20.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = image),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp)
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            Text(
-                text = text,
-                fontSize = 22.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun BottomNavItem(
-    icon: Int,
-    label: String,
-    route: String,
-    navController: NavController
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable {
-                navController.navigate(route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-            .padding(8.dp)
-    ) {
-        Image(
-            painter = painterResource(id = icon),
-            contentDescription = label,
-            modifier = Modifier.size(30.dp)
-        )
-        Text(text = label, color = Color.White, fontSize = 12.sp)
     }
 }
