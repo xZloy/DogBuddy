@@ -219,7 +219,11 @@ fun AditionalInfoScreen(
         ) {
             OutlinedTextField(
                 value = nombre,
-                onValueChange = { nombre = it },
+                onValueChange = {
+                    if (it.length <= 15) {
+                        nombre = it
+                    }
+                },
                 label = { Text("Nombre") },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -239,7 +243,7 @@ fun AditionalInfoScreen(
             OutlinedTextField(
                 value = edad,
                 onValueChange = {
-                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
                         edad = it
                     }
                 },
@@ -265,8 +269,7 @@ fun AditionalInfoScreen(
             OutlinedTextField(
                 value = peso,
                 onValueChange = {
-                    // Aceptar solo números
-                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                    if (it.length <= 3 && it.all { char -> char.isDigit() }) {
                         peso = it
                     }
                 },
@@ -328,12 +331,14 @@ fun AditionalInfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón Guardar
+        var isSaving by remember { mutableStateOf(false) }
+
         Button(
             onClick = {
                 if (nombre.isEmpty() || edad.isEmpty() || peso.isEmpty()) {
                     Toast.makeText(context, "Favor de llenar todos los campos", Toast.LENGTH_SHORT).show()
-                } else {
+                } else if (!isSaving) {
+                    isSaving = true
                     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                     savePetToFirestore(
                         userId = userId,
@@ -348,12 +353,13 @@ fun AditionalInfoScreen(
                             navController.popBackStack()
                         },
                         onError = { exception ->
+                            isSaving = false
                             Toast.makeText(context, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
                         }
                     )
-
                 }
             },
+            enabled = !isSaving,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
             modifier = Modifier
@@ -366,12 +372,21 @@ fun AditionalInfoScreen(
                 tint = Color.White
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Guardar", fontSize = 18.sp, color = Color.White)
+            Text(text = if (isSaving) "Guardando..." else "Guardar", fontSize = 18.sp, color = Color.White)
         }
+
         Spacer(modifier = Modifier.height(8.dp))
 
+        var isCancelling by remember { mutableStateOf(false) }
+
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                if (!isCancelling) {
+                    isCancelling = true
+                    navController.popBackStack()
+                }
+            },
+            enabled = !isCancelling,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
             modifier = Modifier
@@ -392,6 +407,7 @@ fun AditionalInfoScreen(
                 fontSize = 16.sp
             )
         }
+
 
     }
 }

@@ -50,10 +50,14 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
     var peso by remember { mutableStateOf("") }
     var guardando by remember { mutableStateOf(false) }
     var cargando by remember { mutableStateOf(true) }
+    var botonCambiarFotoHabilitado by remember { mutableStateOf(true) }
+
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
+        botonCambiarFotoHabilitado = true
+
         uri?.let {
             val bitmap = if (Build.VERSION.SDK_INT < 28) {
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
@@ -157,11 +161,14 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = { launcher.launch("image/*") },
+                onClick = {
+                    botonCambiarFotoHabilitado = false
+                    launcher.launch("image/*")
+                },
+                enabled = botonCambiarFotoHabilitado,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(
                     text = "Cambiar foto",
@@ -176,7 +183,9 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
 
             OutlinedTextField(
                 value = nombre,
-                onValueChange = { nombre = it },
+                onValueChange = {
+                    if (it.length <= 15) nombre = it
+                },
                 label = { Text("Nombre de la mascota") },
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -193,11 +202,14 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
                     .padding(horizontal = 16.dp)
             )
 
+
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = edad,
-                onValueChange = { edad = it },
+                onValueChange = {
+                    if (it.length <= 3) edad = it
+                },
                 label = { Text("Edad (años)") },
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -215,11 +227,14 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
                     .padding(horizontal = 16.dp)
             )
 
+
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = peso,
-                onValueChange = { peso = it },
+                onValueChange = {
+                    if (it.length <= 3) peso = it
+                },
                 label = { Text("Peso (kg)") },
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -237,7 +252,9 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
                     .padding(horizontal = 16.dp)
             )
 
+
             Spacer(modifier = Modifier.height(24.dp))
+
 
             Button(
                 onClick = {
@@ -259,14 +276,14 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
                         )
                         .addOnSuccessListener {
                             Toast.makeText(context, "Mascota actualizada", Toast.LENGTH_SHORT).show()
-                            guardando = false
-                            navController.popBackStack()
+                            navController.popBackStack() // Cierra pantalla al terminar
                         }
                         .addOnFailureListener {
                             Toast.makeText(context, "Error al actualizar", Toast.LENGTH_SHORT).show()
                             guardando = false
                         }
                 },
+                enabled = !guardando,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff4fc3f7)),
                 modifier = Modifier
@@ -281,16 +298,26 @@ fun EditPetScreen(navController: NavController, mascotaId: String) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Guardar cambios",
+                    text = if (guardando) "Guardando..." else "Guardar cambios",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
             }
+
+
             Spacer(modifier = Modifier.height(8.dp))
 
+            var isCancelling by remember { mutableStateOf(false) }
+
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    if (!isCancelling) {
+                        isCancelling = true
+                        navController.popBackStack()
+                    }
+                },
+                enabled = !isCancelling,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE57373)),
                 modifier = Modifier

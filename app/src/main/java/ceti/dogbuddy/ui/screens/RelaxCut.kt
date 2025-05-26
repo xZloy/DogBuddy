@@ -59,6 +59,7 @@ fun RelaxCutScreen(
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
+    var isNavigatingBack by remember { mutableStateOf(false) }
 
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
@@ -123,15 +124,16 @@ fun RelaxCutScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Flecha de regresar
-                    Image(
+                    Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable {
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
                                 navController.popBackStack()
-                            }
+                            },
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(

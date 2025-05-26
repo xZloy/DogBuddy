@@ -53,6 +53,8 @@ fun UserScreen(navController: NavController) {
     var nombreUsuario by remember { mutableStateOf("Cargando...") }
     var mascotas by remember { mutableStateOf(listOf<Mascota>()) }
     var loading by remember { mutableStateOf(true) }
+    var editEnabledMap by remember { mutableStateOf(mutableMapOf<String, Boolean>()) }
+
 
     // Cargar nombre usuario
     LaunchedEffect(currentUser?.uid) {

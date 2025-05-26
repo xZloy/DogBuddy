@@ -41,6 +41,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -257,13 +259,23 @@ fun SectionButton(
     image: Int,
     onClick: () -> Unit
 ) {
+    var isClickable by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(color)
-            .clickable { onClick() }
+            .clickable(enabled = isClickable) {
+                isClickable = false
+                onClick()
+                coroutineScope.launch {
+                    delay(1000)
+                    isClickable = true
+                }
+            }
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -282,6 +294,7 @@ fun SectionButton(
         }
     }
 }
+
 
 @Composable
 fun BottomNavItem(

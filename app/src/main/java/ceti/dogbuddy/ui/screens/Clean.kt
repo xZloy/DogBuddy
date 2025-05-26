@@ -78,6 +78,8 @@ fun CleanScreen(
         dogs.getOrNull(selectedDogIndex)
     }
 
+    var isNavigatingBack by remember { mutableStateOf(false) }
+
     // Procesa la imagen
     val dogImageBitmap = remember(selectedDog) {
         selectedDog?.get("photoBase")?.let { base64 ->
@@ -119,7 +121,10 @@ fun CleanScreen(
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() },
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
