@@ -182,7 +182,7 @@ fun Nextscreen3(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "¿${petName} tiene alguna condición de salud que se deba tomar en cuenta?",
+                text = "¿ Te gustaria que el alimento de ${petName} tuviera alguno de lossiguientes beneficios?",
                 style = TextStyle(
                     fontSize = 22.sp,
                     color = Color(0xFF01579B)

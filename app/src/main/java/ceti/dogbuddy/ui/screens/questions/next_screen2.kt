@@ -43,6 +43,9 @@ fun Nextscreen2(
     viewModel: DogViewModel = viewModel()
 ) {
     val petName = backStackEntry.arguments?.getString("petName") ?: "Tu Mascota"
+
+    var isNavigatingBack by remember { mutableStateOf(false) }
+
     val proteinIcons = mapOf(
         "Pollo" to R.drawable.chicken, // Reemplaza con tus íconos reales
         "Salmón" to R.drawable.salmon,
@@ -102,7 +105,10 @@ fun Nextscreen2(
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() },
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))

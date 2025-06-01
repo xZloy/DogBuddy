@@ -1,10 +1,8 @@
 package ceti.dogbuddy.ui.screens
 
-
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,14 +12,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessAlarms
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,11 +25,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,8 +42,9 @@ import ceti.dogbuddy.R
 import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
+
 @Composable
-fun RelaxCutScreen(
+fun TrickProgressScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -149,7 +142,7 @@ fun RelaxCutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Corte sin estres",
+                text = "Trucos",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -219,80 +212,113 @@ fun RelaxCutScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-            Box(
+            Text(
+                text = "Sentado",
+                color = Color(0xff01579b),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 24.sp),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Button(
+                onClick = {
+                    navController.navigate("trickTutorial")
+                },
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF78F4F)),
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .width(300.dp)
+                    .height(100.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Text("Tutorial", fontSize = 22.sp, textAlign = TextAlign.Center)
+            }
+
+            Spacer(modifier = Modifier.height(50.dp))
+
+            Text(
+                text = "Progreso",
+                color = Color(0xff01579b),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 24.sp),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 20.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            )
+            {
+                Box(modifier
+                    .height(50.dp)
+                    .width(70.dp)
+                    .background(
+                        color = Color(0xFFF78F4F),
+                        shape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 0.dp,
+                        bottomEnd = 0.dp,
+                        bottomStart = 16.dp)
+                    )
+                )
+                {
+
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                Box(modifier
+                    .background(Color(0x7ff78f4f))
+                    .height(50.dp)
+                    .width(70.dp)
+                )
+                {
+
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                Box(modifier
+                    .background(Color(0x7ff78f4f))
+                    .height(50.dp)
+                    .width(70.dp)
+                )
+                {
+
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                Box(modifier
+                    .background(
+                        color = Color(0x7ff78f4f),
+                        shape = RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 16.dp,
+                            bottomEnd = 16.dp,
+                            bottomStart = 0.dp)
+                    )
+                    .height(50.dp)
+                    .width(70.dp)
+                )
+                {
+
+                }
+            }
+
+            Text(
+                text = "Enseña a tu perro a sentarse al recibir la orden, ayudando a mejorar su obediencia y autocontrol en situaciones cotidianas.",
+                color = Color(0xff01579b),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 20.sp),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(all = 30.dp)
-                    .fillMaxWidth()
-                    .height(400.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0x7f4fc3f7))
+                    .padding(all = 20.dp)
             )
-            {
-                Column{
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(all = 10.dp),
-                        text = "Antes de intentar cortar, dedica unos días a tocarle suavemente las patas y las uñas, sin herramientas. Recompénsalo cada vez para que asocie el contacto con algo positivo.",
-                        fontSize = 22.sp,
-                        color = Color(0xff000000),
-                        fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row (
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            )
-            {
-                IconButton(
-                    onClick = {
-                        //TODO me imagino que es un viewpager
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Izquierda",
-                        tint = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(100.dp))
-
-                IconButton(
-                    onClick = {
-                        //TODO me imagino que es un viewpager
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Derecha",
-                        tint = Color.White,
-                        modifier = Modifier.graphicsLayer {
-                            scaleX = -1f
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
 
         }
 

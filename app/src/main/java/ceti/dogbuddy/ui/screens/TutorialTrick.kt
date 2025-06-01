@@ -1,6 +1,7 @@
 package ceti.dogbuddy.ui.screens
 
 
+
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -51,7 +52,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun RelaxCutScreen(
+fun TutorialTrickScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -149,7 +150,7 @@ fun RelaxCutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Corte sin estres",
+                text = "Sentado",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -226,9 +227,9 @@ fun RelaxCutScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(all = 30.dp)
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(250.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0x7f4fc3f7))
+                    .background(Color(0x7ff78f4f))
             )
             {
                 Column{
@@ -236,7 +237,7 @@ fun RelaxCutScreen(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(all = 10.dp),
-                        text = "Antes de intentar cortar, dedica unos días a tocarle suavemente las patas y las uñas, sin herramientas. Recompénsalo cada vez para que asocie el contacto con algo positivo.",
+                        text = "Llama a tu perro por su nombre y colócate frente a él cuando esté de pie. Asegúrate de que te esté prestando atención antes de continuar.",
                         fontSize = 22.sp,
                         color = Color(0xff000000),
                         fontWeight = FontWeight.Bold)
@@ -258,7 +259,7 @@ fun RelaxCutScreen(
                     },
                     modifier = Modifier
                         .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
+                        .background(Color(0xFFF78F4F), shape = CircleShape)
                         .padding(16.dp)
                 ) {
                     Icon(
@@ -277,7 +278,7 @@ fun RelaxCutScreen(
                     },
                     modifier = Modifier
                         .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
+                        .background(Color(0xFFF78F4F), shape = CircleShape)
                         .padding(16.dp)
                 ) {
                     Icon(
@@ -292,6 +293,16 @@ fun RelaxCutScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Enseña a tu perro a sentarse al recibir la orden, ayudando a mejorar su obediencia y autocontrol en situaciones cotidianas.",
+                color = Color(0xff01579b),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 20.sp),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(all = 20.dp)
+            )
 
 
         }

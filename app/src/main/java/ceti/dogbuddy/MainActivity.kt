@@ -36,6 +36,9 @@ import ceti.dogbuddy.ui.screens.CalendarDogBuddy
 import ceti.dogbuddy.ui.screens.EditPetScreen
 import ceti.dogbuddy.ui.screens.CleanScreen
 import ceti.dogbuddy.ui.screens.FeedingScreen
+import ceti.dogbuddy.ui.screens.GameGuideScreen
+import ceti.dogbuddy.ui.screens.GameRoutineScreen
+import ceti.dogbuddy.ui.screens.GameScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.NailsScreen
@@ -46,6 +49,9 @@ import ceti.dogbuddy.ui.screens.RelaxCutScreen
 import ceti.dogbuddy.ui.screens.ScannerScreen
 import ceti.dogbuddy.ui.screens.ShampooScreen
 import ceti.dogbuddy.ui.screens.TeethScreen
+import ceti.dogbuddy.ui.screens.TrickProgressScreen
+import ceti.dogbuddy.ui.screens.TrickScreen
+import ceti.dogbuddy.ui.screens.TutorialTrickScreen
 import ceti.dogbuddy.ui.screens.UserScreen
 import ceti.dogbuddy.ui.screens.questions.Nextscreen
 import ceti.dogbuddy.ui.screens.questions.Nextscreen2
@@ -135,6 +141,31 @@ fun AppNavigation() {
             composable("badTeeth") {
                 BadTeethScreen(navController, viewModel = dogViewModel)
             }
+
+            composable("juegos") {
+                GameScreen(navController, viewModel = dogViewModel)
+            }
+
+            composable("trucos") {
+                TrickScreen(navController, viewModel = dogViewModel)
+            }
+
+            composable("trickProgress") {
+                TrickProgressScreen(navController, viewModel = dogViewModel)
+            }
+
+            composable("trickTutorial") {
+                TutorialTrickScreen(navController, viewModel = dogViewModel)
+            }
+
+            composable("games") {
+                GameGuideScreen(navController, viewModel = dogViewModel)
+            }
+
+            composable("gameRoutine") {
+                GameRoutineScreen(navController, viewModel = dogViewModel)
+            }
+
             composable("alimentacion") {
                 FeedingScreen(navController, viewModel = dogViewModel)
             }

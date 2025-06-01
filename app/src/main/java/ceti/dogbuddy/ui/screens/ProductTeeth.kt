@@ -1,45 +1,3 @@
-import androidx.compose.ui.layout.ContentScale
-import android.graphics.BitmapFactory
-import android.util.Base64
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import ceti.dogbuddy.R
-import ceti.dogbuddy.ui.openai.getDogRecommendations
-import ceti.dogbuddy.ui.screens.BottomNavItem
-import ceti.dogbuddy.ui.viewmodels.DogViewModel
-//import ceti.dogbuddy.ui.screens.components.BottomNavItem
-import ceti.dogbuddy.ui.screens.cropToSquare
-
 @Composable
 fun ProductTeethScreen(
     navController: NavController,
@@ -50,6 +8,7 @@ fun ProductTeethScreen(
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
     var teethRecommendation by remember { mutableStateOf("Cargando recomendación de producto bucal...") }
+    var isNavigatingBack by remember { mutableStateOf(false) }
 
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
@@ -75,12 +34,10 @@ fun ProductTeethScreen(
         dogs.getOrNull(selectedDogIndex)
     }
 
-    // Llamar a ChatGPT según raza del perro
     LaunchedEffect(selectedDog) {
         selectedDog?.let { dog ->
-            val dogBreed = dog.get("breed")?.toString()?.trim().takeUnless { it.isNullOrBlank() } ?: "raza desconocida"
+            val dogBreed = dog["breed"]?.toString()?.trim().takeUnless { it.isNullOrBlank() } ?: "raza desconocida"
             val prompt = "¿Qué productos dentales recomiendas para un perro de raza $dogBreed? Explica por qué."
-
             getDogRecommendations(prompt) { result ->
                 teethRecommendation = result ?: "No se pudo obtener recomendación."
             }
@@ -112,7 +69,7 @@ fun ProductTeethScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            // Header
+            // Encabezado
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,12 +83,16 @@ fun ProductTeethScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
+                    Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
@@ -218,7 +179,7 @@ fun ProductTeethScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Recomendación de ChatGPT
+            // Recuadro de recomendación
             Box(
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
@@ -233,9 +194,7 @@ fun ProductTeethScreen(
                         color = Color(0xFF01579B),
                         fontWeight = FontWeight.Bold
                     )
-
                     Spacer(modifier = Modifier.height(12.dp))
-
                     Text(
                         text = teethRecommendation,
                         fontSize = 16.sp,
@@ -300,8 +259,7 @@ fun ProductTeethScreen(
                         text = "✕",
                         color = Color.Black,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
-                        lineHeight = 22.sp
+                        fontSize = 22.sp
                     )
                 }
             }

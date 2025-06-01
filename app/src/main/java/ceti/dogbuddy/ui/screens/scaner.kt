@@ -431,6 +431,8 @@ fun ResultDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var buttonEnabled by remember { mutableStateOf(true) }
+
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
@@ -525,7 +527,13 @@ fun ResultDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(
-                        onClick = onConfirm,
+                        onClick = {
+                            if (buttonEnabled) {
+                                buttonEnabled = false
+                                onConfirm()
+                            }
+                        },
+                        enabled = buttonEnabled,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3D84C2)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f).padding(end = 8.dp)

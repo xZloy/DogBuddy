@@ -48,7 +48,7 @@ import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
 @Composable
-fun BrushTeethScreen(
+fun GameRoutineScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -146,7 +146,7 @@ fun BrushTeethScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Frecuencia de cepillado",
+                text = "Rutina de juegos",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -215,6 +215,38 @@ fun BrushTeethScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row (modifier = Modifier.align(Alignment.CenterHorizontally))
+            {
+                Text(
+                    text = "Recordatorio:",
+                    fontSize = 22.sp,
+                    color = Color(0xFF01579B),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+
+                Spacer(modifier = Modifier.width(30.dp))
+
+                IconButton(
+                    onClick = {
+                        //TODO Funcionalidad del boton para activar el recordatorio
+                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color(0xFFF78F4F), shape = CircleShape)
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessAlarms,
+                        contentDescription = "Recordatorio",
+                        tint = Color.White
+                    )
+                }
+
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -248,15 +280,39 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Lunes",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "LunesF",
                             modifier = Modifier.size(24.dp)
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "LunesM",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -286,12 +342,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Martes",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "MartesF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "MartesM",
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -324,12 +403,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Miercoles",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "MiercolesF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "MiercolesM",
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -362,12 +464,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Jueves",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "JuevesF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "JuevesM",
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -400,12 +525,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Viernes",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "ViernesF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "ViernesM",
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -438,12 +586,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Sabado",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "SabadoF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "SabadoM",
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -476,12 +647,35 @@ fun BrushTeethScreen(
                         },
                         modifier = Modifier
                             .size(60.dp)
-                            .background(Color(0xFF4FC3F7), shape = CircleShape)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
                             .padding(16.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.image30),
-                            contentDescription = "Domingo",
+                            painter = painterResource(id = R.drawable.ball),
+                            contentDescription = "DomingoF",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    IconButton(
+                        onClick = {
+                            //TODO Funcionalidad del boton para activar el recordatorio
+                            Toast.makeText(
+                                context,
+                                "Funcionalidad por implementar",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(Color(0xFFF78F4F), shape = CircleShape)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.brain),
+                            contentDescription = "DomingoM",
                             modifier = Modifier.size(24.dp)
                         )
                     }

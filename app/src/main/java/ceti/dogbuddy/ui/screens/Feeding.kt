@@ -80,6 +80,7 @@ fun FeedingScreen(
         dogs.getOrNull(selectedDogIndex)
     }
 
+    var isNavigatingBack by remember { mutableStateOf(false) }
     // Procesa la imagen
     val dogImageBitmap = remember(selectedDog) {
         selectedDog?.get("photoBase")?.let { base64 ->
@@ -116,13 +117,15 @@ fun FeedingScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Flecha de regresar
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() },
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -210,27 +213,8 @@ fun FeedingScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(70.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .background(Color(0xFFE1F5FE), shape = RoundedCornerShape(8.dp))
-                    .border(1.dp, Color(0xFF01579B), RoundedCornerShape(8.dp))
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Selecciona la mascota para obtener recomendaciones de alimentación.",
-                    color = Color(0xff01579b),
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium),
-                    lineHeight = 24.sp
-                )
-            }
-
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             // Secciones de funcionalidad
             SectionButton("Comenzar", Color(0xFF6FCF97), R.drawable.food) {

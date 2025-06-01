@@ -1,10 +1,8 @@
 package ceti.dogbuddy.ui.screens
 
-
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,14 +12,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessAlarms
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,11 +23,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,8 +40,9 @@ import ceti.dogbuddy.R
 import com.google.firebase.auth.FirebaseAuth
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
 
+
 @Composable
-fun RelaxCutScreen(
+fun GameScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: DogViewModel = viewModel()
@@ -149,7 +140,7 @@ fun RelaxCutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Corte sin estres",
+                text = "Trucos y juegos",
                 color = Color(0xff01579b),
                 textAlign = TextAlign.Center,
                 style = TextStyle(fontSize = 24.sp),
@@ -219,80 +210,18 @@ fun RelaxCutScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(all = 30.dp)
-                    .fillMaxWidth()
-                    .height(400.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0x7f4fc3f7))
-            )
-            {
-                Column{
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(all = 10.dp),
-                        text = "Antes de intentar cortar, dedica unos días a tocarle suavemente las patas y las uñas, sin herramientas. Recompénsalo cada vez para que asocie el contacto con algo positivo.",
-                        fontSize = 22.sp,
-                        color = Color(0xff000000),
-                        fontWeight = FontWeight.Bold)
-                }
+            // Secciones de funcionalidad
+            SectionButton("Trucos", Color(0xFFF78F4F), R.drawable.tricks) {
+                navController.navigate("trucos")
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
-            Row (
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            )
-            {
-                IconButton(
-                    onClick = {
-                        //TODO me imagino que es un viewpager
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Izquierda",
-                        tint = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(100.dp))
-
-                IconButton(
-                    onClick = {
-                        //TODO me imagino que es un viewpager
-                        Toast.makeText(context,"Funcionalidad por implementar",Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color(0xFF4FC3F7), shape = CircleShape)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Derecha",
-                        tint = Color.White,
-                        modifier = Modifier.graphicsLayer {
-                            scaleX = -1f
-                        }
-                    )
-                }
+            SectionButton("Juegos", Color(0xFFF78F4F), R.drawable.play) {
+                navController.navigate("games")
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
 
         }
 

@@ -49,6 +49,7 @@ fun ShampooScreen(
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
     var shampooRecommendation by remember { mutableStateOf("Cargando recomendación de shampoo...") }
+    var isNavigatingBack by remember { mutableStateOf(false) }
 
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
@@ -57,6 +58,7 @@ fun ShampooScreen(
         }
         return
     }
+
     val scrollState = rememberScrollState()
     val dogs by viewModel.dogs
     val selectedDogIndex by viewModel.selectedDogIndex
@@ -74,10 +76,9 @@ fun ShampooScreen(
         dogs.getOrNull(selectedDogIndex)
     }
 
-    // Recomendación dinámica al cambiar de perro
     LaunchedEffect(selectedDog) {
         selectedDog?.let { dog ->
-            val dogBreed = dog["breed"] ?: "raza desconocida"
+            val dogBreed = dog["breed"]?.toString()?.trim().takeUnless { it.isNullOrBlank() } ?: "raza desconocida"
             val prompt = "¿Qué shampoo recomiendas para un perro de raza $dogBreed? Explica por qué."
 
             getDogRecommendations(prompt) { result ->
@@ -120,12 +121,16 @@ fun ShampooScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
+                    Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
@@ -212,7 +217,6 @@ fun ShampooScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sección dinámica de recomendación de shampoo
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -223,7 +227,7 @@ fun ShampooScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFD0E9FB)) // azul claro más suave
+                        .background(Color(0xFFD0E9FB))
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text(
@@ -243,11 +247,9 @@ fun ShampooScreen(
                         )
                     }
                 }
-
             }
         }
 
-        // Bottom Navigation
         Box(
             modifier = Modifier
                 .fillMaxWidth()

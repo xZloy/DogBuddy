@@ -44,6 +44,8 @@ fun Nextscreen(
 ) {
     val petName = backStackEntry.arguments?.getString("petName") ?: "Tu Mascota"
 
+    var isNavigatingBack by remember { mutableStateOf(false) }
+
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
     // Obtén los datos del ViewModel
@@ -103,13 +105,15 @@ fun Nextscreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Flecha de regresar
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable { navController.popBackStack() },
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                navController.popBackStack()
+                            },
                         tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
