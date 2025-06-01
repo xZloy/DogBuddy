@@ -1,25 +1,19 @@
 package ceti.dogbuddy.ui.screens
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessAlarms
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,16 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -44,8 +35,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ceti.dogbuddy.R
-import com.google.firebase.auth.FirebaseAuth
+import ceti.dogbuddy.ui.openai.getDogRecommendations
 import ceti.dogbuddy.ui.viewmodels.DogViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ShampooScreen(
@@ -56,6 +48,7 @@ fun ShampooScreen(
     val user = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     var showFullScreenImage by remember { mutableStateOf(false) }
+    var shampooRecommendation by remember { mutableStateOf("Cargando recomendación de shampoo...") }
 
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
@@ -64,13 +57,11 @@ fun ShampooScreen(
         }
         return
     }
-
-    // Obtén los datos del ViewModel
+    val scrollState = rememberScrollState()
     val dogs by viewModel.dogs
     val selectedDogIndex by viewModel.selectedDogIndex
     val loading by viewModel.loading
 
-    // Carga las mascotas si no están cargadas
     LaunchedEffect(user.uid) {
         if (dogs.isEmpty()) {
             viewModel.loadDogs(user.uid) {
@@ -79,12 +70,22 @@ fun ShampooScreen(
         }
     }
 
-    // Obtén la mascota seleccionada
     val selectedDog = remember(dogs, selectedDogIndex) {
         dogs.getOrNull(selectedDogIndex)
     }
 
-    // Procesa la imagen
+    // Recomendación dinámica al cambiar de perro
+    LaunchedEffect(selectedDog) {
+        selectedDog?.let { dog ->
+            val dogBreed = dog["breed"] ?: "raza desconocida"
+            val prompt = "¿Qué shampoo recomiendas para un perro de raza $dogBreed? Explica por qué."
+
+            getDogRecommendations(prompt) { result ->
+                shampooRecommendation = result ?: "No se pudo obtener recomendación de shampoo."
+            }
+        }
+    }
+
     val dogImageBitmap = remember(selectedDog) {
         selectedDog?.get("photoBase")?.let { base64 ->
             try {
@@ -103,9 +104,8 @@ fun ShampooScreen(
             .fillMaxSize()
             .background(Color(0xFFE3F2FD))
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+
             // Header
             Box(
                 modifier = Modifier
@@ -120,15 +120,12 @@ fun ShampooScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Flecha de regresar
                     Image(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back",
                         modifier = Modifier
                             .size(35.dp)
-                            .clickable {
-                                navController.popBackStack()
-                            }
+                            .clickable { navController.popBackStack() }
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
@@ -153,7 +150,6 @@ fun ShampooScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Sección de mascota
             if (loading) {
                 Text(
                     "Cargando perfil de tu mascota...",
@@ -216,53 +212,39 @@ fun ShampooScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Box(
+            // Sección dinámica de recomendación de shampoo
+            Column(
                 modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(all = 30.dp)
-                .fillMaxWidth()
-                .height(500.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x7f4fc3f7))
-            )
-            {
-                Column{
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(all = 10.dp),
-                        text = "Shampoo recomendado:",
-                        fontSize = 22.sp,
-                        color = Color(0xff000000),
-                        fontWeight = FontWeight.Bold)
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFD0E9FB)) // azul claro más suave
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(
+                            text = "Recomendación de Shampoo:",
+                            fontSize = 20.sp,
+                            color = Color(0xFF01579B),
+                            fontWeight = FontWeight.Bold
+                        )
 
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(all = 10.dp),
-                        text = "Men for san Champú para pelo blanco",
-                        fontSize = 22.sp,
-                        color = Color(0xff000000),
-                        fontWeight = FontWeight.Bold)
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(all = 10.dp),
-                        text = "Vet’s Best Antipulgas (En caso necesario)",
-                        fontSize = 22.sp,
-                        color = Color(0xff000000),
-                        fontWeight = FontWeight.Bold)
+                        Text(
+                            text = shampooRecommendation,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            lineHeight = 22.sp
+                        )
+                    }
                 }
+
             }
-
-
-
         }
 
         // Bottom Navigation
@@ -286,7 +268,6 @@ fun ShampooScreen(
         }
     }
 
-    // Diálogo para imagen a pantalla completa
     if (showFullScreenImage && dogImageBitmap != null) {
         Dialog(
             onDismissRequest = { showFullScreenImage = false },

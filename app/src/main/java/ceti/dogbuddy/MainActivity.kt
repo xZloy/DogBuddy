@@ -2,6 +2,7 @@ package ceti.dogbuddy
 
 
 
+import ProductTeethScreen
 import android.graphics.BitmapFactory
 import android.app.Activity
 import android.os.Bundle
@@ -38,7 +39,6 @@ import ceti.dogbuddy.ui.screens.FeedingScreen
 import ceti.dogbuddy.ui.screens.HomeDogBuddy
 import ceti.dogbuddy.ui.screens.LoginDogBuddy
 import ceti.dogbuddy.ui.screens.NailsScreen
-import ceti.dogbuddy.ui.screens.ProductTeethScreen
 import ceti.dogbuddy.ui.screens.questions.PetConditionScreen
 import ceti.dogbuddy.ui.screens.RecoverPassDogBuddy
 import ceti.dogbuddy.ui.screens.RegisterDogBuddy
