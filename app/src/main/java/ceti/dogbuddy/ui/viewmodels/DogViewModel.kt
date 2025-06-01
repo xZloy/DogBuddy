@@ -33,7 +33,7 @@ class DogViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putInt("selected_dog_index", index).apply()
     }
 
-    fun loadDogs(userId: String, onError: () -> Unit) {
+    /*fun loadDogs(userId: String, onError: () -> Unit) {
         _loading.value = true
         FirebaseFirestore.getInstance().collection("pet")
             .whereEqualTo("userId", userId)
@@ -56,7 +56,49 @@ class DogViewModel(application: Application) : AndroidViewModel(application) {
                 onError()
                 _loading.value = false
             }
+    }*/
+    fun loadDogs(userId: String, onError: () -> Unit) {
+        _loading.value = true
+        FirebaseFirestore.getInstance().collection("pet")
+            .get()
+            .addOnSuccessListener { result ->
+                val allDocs = result.documents
+                println("🔍 UID buscado: $userId")
+
+                allDocs.forEach { doc ->
+                    val docUserId = doc.getString("userId")
+                    println("📄 DOC ID: ${doc.id}")
+                    println("➡️ userId en doc: $docUserId")
+                    println("✅ ¿Coincide?: ${docUserId == userId}")
+                }
+
+                val filtered = allDocs.filter { doc ->
+                    doc.getString("userId") == userId
+                }
+
+                println("🐶 Perros encontrados: ${filtered.size}")
+
+                _dogs.value = filtered.mapNotNull { doc ->
+                    val name = doc.getString("name")
+                    val photoBase = doc.getString("photoBase")
+                    val breed = doc.getString("breed")
+                    if (name != null && photoBase != null && breed != null) mapOf(
+                        "id" to doc.id,
+                        "name" to name,
+                        "photoBase" to photoBase,
+                        "breed" to breed
+                    ) else null
+                }
+
+                _loading.value = false
+            }
+            .addOnFailureListener {
+                onError()
+                _loading.value = false
+            }
     }
+
+
     fun loadAppointments(userId: String, dogId: String?, onLoaded: (List<Reminder>) -> Unit) {
         if (dogId.isNullOrBlank()) {
             onLoaded(emptyList())

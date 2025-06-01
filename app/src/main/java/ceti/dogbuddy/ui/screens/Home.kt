@@ -69,8 +69,12 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
         }
     }
 
-    val dogName = dogs.getOrNull(selectedDogIndex)?.get("name")
-    val dogImageBitmap = dogs.getOrNull(selectedDogIndex)?.get("photoBase")?.let { base64 ->
+    //val dogName = dogs.getOrNull(selectedDogIndex)?.get("name")
+    val validIndex = if (selectedDogIndex < dogs.size) selectedDogIndex else 0
+    val dogName = dogs.getOrNull(validIndex)?.get("name")
+
+    //val dogImageBitmap = dogs.getOrNull(selectedDogIndex)?.get("photoBase")?.let { base64 ->
+    val dogImageBitmap = dogs.getOrNull(validIndex)?.get("photoBase")?.let { base64 ->
         try {
             val imageBytes = Base64.decode(base64, Base64.DEFAULT)
             val bitmapOriginal = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
@@ -80,7 +84,6 @@ fun HomeDogBuddy(navController: NavController, viewModel: DogViewModel = viewMod
             null
         }
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
