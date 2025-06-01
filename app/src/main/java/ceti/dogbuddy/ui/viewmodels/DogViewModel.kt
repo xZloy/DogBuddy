@@ -42,10 +42,12 @@ class DogViewModel(application: Application) : AndroidViewModel(application) {
                 _dogs.value = result.documents.mapNotNull { doc ->
                     val name = doc.getString("name")
                     val photoBase = doc.getString("photoBase")
-                    if (name != null && photoBase != null) mapOf(
+                    val breed = doc.getString("breed")
+                    if (name != null && photoBase != null && breed != null) mapOf(
                         "id" to doc.id,
                         "name" to name,
-                        "photoBase" to photoBase
+                        "photoBase" to photoBase,
+                        "breed" to breed
                     ) else null
                 }
                 _loading.value = false

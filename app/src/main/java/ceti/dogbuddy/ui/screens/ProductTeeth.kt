@@ -1,3 +1,48 @@
+import androidx.compose.ui.layout.ContentScale
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import ceti.dogbuddy.R
+import ceti.dogbuddy.ui.openai.getDogRecommendations
+import ceti.dogbuddy.ui.screens.BottomNavItem
+import ceti.dogbuddy.ui.viewmodels.DogViewModel
+//import ceti.dogbuddy.ui.screens.components.BottomNavItem
+import ceti.dogbuddy.ui.screens.cropToSquare
+
 @Composable
 fun ProductTeethScreen(
     navController: NavController,
@@ -9,7 +54,7 @@ fun ProductTeethScreen(
     var showFullScreenImage by remember { mutableStateOf(false) }
     var teethRecommendation by remember { mutableStateOf("Cargando recomendación de producto bucal...") }
     var isNavigatingBack by remember { mutableStateOf(false) }
-
+    val sections = teethRecommendation.split("\n\n") // o teethRecommendation
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
         navController.navigate("login") {
@@ -179,7 +224,6 @@ fun ProductTeethScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Recuadro de recomendación
             Box(
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 16.dp)
@@ -189,20 +233,37 @@ fun ProductTeethScreen(
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = "Recomendación de Cuidado Bucal:",
+                        text = "Recomendación de Cuidado bucal:",
                         fontSize = 20.sp,
                         color = Color(0xFF01579B),
                         fontWeight = FontWeight.Bold
                     )
+
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = teethRecommendation,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        lineHeight = 22.sp
-                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        sections.forEach { section ->
+                            if (section.isNotBlank()) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ) {
+                                    Text(
+                                        text = section.trim(),
+                                        style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                                        modifier = Modifier.padding(12.dp),
+                                        lineHeight = 22.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
+
         }
 
         // Bottom Navigation

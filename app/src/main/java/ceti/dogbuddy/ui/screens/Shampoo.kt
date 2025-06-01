@@ -14,6 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,7 +53,7 @@ fun ShampooScreen(
     var showFullScreenImage by remember { mutableStateOf(false) }
     var shampooRecommendation by remember { mutableStateOf("Cargando recomendación de shampoo...") }
     var isNavigatingBack by remember { mutableStateOf(false) }
-
+    val sections = shampooRecommendation.split("\n\n") // o teethRecommendation
     if (user == null) {
         Toast.makeText(context, "Sesión expirada, por favor inicia sesión", Toast.LENGTH_SHORT).show()
         navController.navigate("login") {
@@ -239,12 +242,25 @@ fun ShampooScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text(
-                            text = shampooRecommendation,
-                            fontSize = 16.sp,
-                            color = Color.Black,
-                            lineHeight = 22.sp
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            sections.forEach { section ->
+                                if (section.isNotBlank()) {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                                    ) {
+                                        Text(
+                                            text = section.trim(),
+                                            style = TextStyle(fontSize = 16.sp, color = Color.Black),
+                                            modifier = Modifier.padding(12.dp),
+                                            lineHeight = 22.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
