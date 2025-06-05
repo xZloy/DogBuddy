@@ -1,5 +1,6 @@
 package ceti.dogbuddy.ui.screens
-
+import android.os.Handler
+import android.os.Looper
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -14,8 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-//import androidx.camera.core.ImageProcessor
 import androidx.camera.core.Preview
+import androidx.camera.core.internal.utils.ImageUtil.rotateBitmap
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
@@ -27,8 +28,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Image
-import org.tensorflow.lite.Interpreter
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,36 +38,32 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import ceti.dogbuddy.R
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.support.image.TensorImage
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONObject
 import java.io.File
-import java.io.FileInputStream
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import org.tensorflow.lite.support.common.ops.NormalizeOp
-import org.tensorflow.lite.support.image.ops.ResizeOp
-import org.tensorflow.lite.support.image.ImageProcessor
 import java.io.FileOutputStream
 import java.io.IOException
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScannerScreen(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = context as LifecycleOwner
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    var predictedLabel by remember { mutableStateOf("") }
+    var predictionConfidence by remember { mutableStateOf(0f) }
+    var showDialog by remember { mutableStateOf(false) }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -78,7 +73,6 @@ fun ScannerScreen(navController: NavController) {
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
-    //val context = LocalContext.current
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -94,9 +88,7 @@ fun ScannerScreen(navController: NavController) {
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasCameraPermission = granted
-    }
+    ) { granted -> hasCameraPermission = granted }
 
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) {
@@ -130,14 +122,11 @@ fun ScannerScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Título
                 Text(
                     text = "Escanea a tu mascota",
                     color = Color(0xFF01579B),
                     fontSize = 20.sp,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 8.dp)
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -147,28 +136,86 @@ fun ScannerScreen(navController: NavController) {
                         .fillMaxWidth()
                         .height(760.dp)
                         .padding(horizontal = 16.dp),
+                    navController = navController,
                     onImageCaptured = { bitmap ->
-                        val resized = Bitmap.createScaledBitmap(bitmap, 224, 224, true)
-                        val tensorImage = TensorImage(DataType.FLOAT32)
-                        tensorImage.load(resized)
+                        val imageFile = saveBitmapToFile(context, bitmap)
 
-                        val tflite = Interpreter(loadModelFile(context, "model.tflite"))
-                        val labels = context.assets.open("labels.txt").bufferedReader().readLines()
-                        val outputBuffer = Array(1) { FloatArray(labels.size) }
-
-                        tflite.run(tensorImage.buffer, outputBuffer)
-
-                        val prediction = outputBuffer[0].withIndex().maxByOrNull { it.value }?.index ?: -1
-                        val predictedLabel = if (prediction != -1) labels[prediction] else "Desconocido"
-
-                        Toast.makeText(context, "Raza detectada: $predictedLabel", Toast.LENGTH_LONG).show()
-                    },
-                    navController = navController
+                        uploadImageAndGetPrediction(
+                            imageFile,
+                            onSuccess = { raza, confianza ->
+                                capturedImage = bitmap
+                                predictedLabel = limpiarNombreRaza(raza)
+                                predictionConfidence = confianza
+                                showDialog = true
+                            },
+                            onError = { error ->
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        )
+                    }
                 )
 
             }
+
+            // ✅ Botones para cargar imagen y capturar foto
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(80.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                IconButton(
+                    onClick = {
+                        imagePickerLauncher.launch("image/*")
+                    },
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color.White, shape = CircleShape)
+                        .padding(16.dp)
+                        .align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Image,
+                        contentDescription = "Subir Imagen",
+                        tint = Color(0xFF01579B)
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        val photoFile = File.createTempFile("photo_", ".jpg")
+                        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+                        CameraUtils.imageCapture?.takePicture(
+                            outputOptions,
+                            ContextCompat.getMainExecutor(context),
+                            object : ImageCapture.OnImageSavedCallback {
+                                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                    val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+                                    CameraUtils.onImageCaptured?.invoke(bitmap)
+                                }
+
+                                override fun onError(exception: ImageCaptureException) {
+                                    Log.e("ScannerScreen", "Error al tomar la foto: ${exception.message}")
+                                }
+                            }
+                        )
+                    },
+                    modifier = Modifier
+                        .size(80.dp)
+                        .background(Color(0x9001579B), shape = CircleShape)
+                        .padding(16.dp)
+                        .align(Alignment.Center)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Capturar Foto",
+                        tint = Color.White
+                    )
+                }
+            }
         } else {
-            // Mostrar mensaje si no tiene permiso
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -177,10 +224,9 @@ fun ScannerScreen(navController: NavController) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Se requiere permiso de cámara para escanear a tu mascota.",
+                    text = "Se requiere permiso de cámara.",
                     color = Color.Red,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(16.dp)
+                    fontSize = 18.sp
                 )
                 Button(onClick = {
                     permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -189,8 +235,7 @@ fun ScannerScreen(navController: NavController) {
                 }
             }
         }
-
-        // Barra de navegación inferior
+        // Barra de navegación inferior (añade esto dentro del Box, al final)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -210,88 +255,101 @@ fun ScannerScreen(navController: NavController) {
                 BottomNavItem(R.drawable.user, "Perfil", "profile", navController)
             }
         }
-
-        // Botones para subir imagen y tomar foto
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(80.dp)
-                .align(Alignment.BottomCenter)
-        ) {
-            // Botón para subir imagen
-            IconButton(
-                onClick = {
-                    imagePickerLauncher.launch("image/*")
-                },
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(Color.White, shape = CircleShape)
-                    .padding(16.dp)
-                    .align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Image,
-                    contentDescription = "Subir Imagen",
-                    tint = Color(0xFF01579B)
-                )
-            }
-            // Botón para capturar foto
-            IconButton(
-                onClick = {
-                    val photoFile = File.createTempFile("photo_", ".jpg")
-                    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-                    CameraUtils.imageCapture?.takePicture(
-                        outputOptions,
-                        ContextCompat.getMainExecutor(context),
-                        object : ImageCapture.OnImageSavedCallback {
-                            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-                                CameraUtils.onImageCaptured?.invoke(bitmap)
-                            }
-
-                            override fun onError(exception: ImageCaptureException) {
-                                Log.e("ScannerScreen", "Error taking photo: ${exception.message}")
-                            }
-                        }
-                    )
-                },
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(Color(0x9001579B), shape = CircleShape)
-                    .padding(16.dp)
-                    .align(Alignment.Center)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "Capturar Foto",
-                    tint = Color.White
-                )
-            }
-
+        if (showDialog && capturedImage != null) {
+            ResultDialog(
+                raza = predictedLabel,
+                confianza = predictionConfidence,
+                image = capturedImage!!,
+                onDismiss = { showDialog = false },
+                onConfirm = {
+                    val imageFile = saveBitmapToFile(context, capturedImage!!)
+                    val route = "info?raza=$predictedLabel&imagePath=${imageFile.absolutePath}"
+                    navController.navigate(route)
+                    showDialog = false
+                }
+            )
         }
 
     }
 }
-object CameraUtils {
-    var imageCapture: androidx.camera.core.ImageCapture? = null
-    var onImageCaptured: ((Bitmap) -> Unit)? = null
+
+fun rotateBitmap(bitmap: Bitmap, context: Context): Bitmap {
+    val rotationDegrees = getRotationDegrees(context, CameraSelector.DEFAULT_BACK_CAMERA)
+    val matrix = android.graphics.Matrix()
+    matrix.postRotate(rotationDegrees.toFloat())
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+}
+fun getRotationDegrees(context: Context, cameraSelector: CameraSelector): Int {
+    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+    val cameraProvider = cameraProviderFuture.get()
+    val camera = cameraProvider.bindToLifecycle(
+        context as LifecycleOwner,
+        cameraSelector
+    )
+    return camera.cameraInfo.sensorRotationDegrees
 }
 
+// Enviar imagen al backend ya desplegado
+fun uploadImageAndGetPrediction(
+    imageFile: File,
+    onSuccess: (String, Float) -> Unit,
+    onError: (String) -> Unit
+) {
+    val client = OkHttpClient()
 
+    val mediaType = "image/jpeg".toMediaTypeOrNull()
+    val requestBody = imageFile.asRequestBody(mediaType)
+
+    val body = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("file", imageFile.name, requestBody)
+        .build()
+
+    val request = Request.Builder()
+        .url("https://dogbuddy-backend.onrender.com/predict")
+        .post(body)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            onError("Error de red: ${e.message}")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (!response.isSuccessful) {
+                Handler(Looper.getMainLooper()).post {
+                    onError("Error del servidor: ${response.code}")
+                }
+                return
+            }
+
+            val jsonString = response.body?.string()
+            try {
+                val json = JSONObject(jsonString ?: "")
+                val raza = json.getString("raza")
+                val confianza = json.getDouble("confianza").toFloat()
+
+                Handler(Looper.getMainLooper()).post {
+                    onSuccess(raza, confianza)
+                }
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    onError("Error procesando respuesta")
+                }
+            }
+        }
+
+    })
+}
 @Composable
 fun CameraPreview(
     modifier: Modifier = Modifier,
     navController: NavController,
-    onImageCaptured: (Bitmap) -> Unit = {}
+    onImageCaptured: (Bitmap) -> Unit
 ) {
-    val context = LocalContext.current  // Obtener el contexto
+    val context = LocalContext.current
     val lifecycleOwner = context as LifecycleOwner
-    val imageCapture = remember { androidx.camera.core.ImageCapture.Builder().build() }
-
-    var showDialog by remember { mutableStateOf(false) }
-    var predictedLabel by remember { mutableStateOf("") }
-    var confidence by remember { mutableStateOf(0f) }
-    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    val imageCapture = remember { ImageCapture.Builder().build() }
 
     AndroidView(
         modifier = modifier,
@@ -321,7 +379,7 @@ fun CameraPreview(
                         imageCapture
                     )
                 } catch (e: Exception) {
-                    Log.e("CameraPreview", "Error setting up camera: ${e.message}")
+                    Log.e("CameraPreview", "Error al configurar la cámara: ${e.message}")
                 }
             }, ContextCompat.getMainExecutor(ctx))
 
@@ -331,67 +389,8 @@ fun CameraPreview(
 
     LaunchedEffect(Unit) {
         CameraUtils.imageCapture = imageCapture
-        CameraUtils.onImageCaptured = { bitmap ->
-            // Ajustar la orientación de la imagen
-            val rotatedBitmap = rotateBitmap(bitmap, context)  // Pasa el contexto aquí
-
-            capturedImage = rotatedBitmap
-            val resized = Bitmap.createScaledBitmap(rotatedBitmap, 224, 224, true)
-            val tensorImage = TensorImage(DataType.FLOAT32)
-            tensorImage.load(resized)
-
-            val imageProcessor = ImageProcessor.Builder()
-                .add(ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                .add(NormalizeOp(0f, 255f))
-                .build()
-
-            val processedImage = imageProcessor.process(tensorImage)
-
-            val tflite = Interpreter(loadModelFile(context, "model.tflite"))
-            val labels = context.assets.open("labels.txt").bufferedReader().readLines()
-            val outputBuffer = Array(1) { FloatArray(labels.size) }
-
-            tflite.run(processedImage.buffer, outputBuffer)
-
-            val prediction = outputBuffer[0].withIndex().maxByOrNull { it.value }?.index ?: -1
-            confidence = if (prediction != -1) outputBuffer[0][prediction] * 100 else 0.0f
-            predictedLabel = if (prediction != -1) limpiarNombreRaza(labels[prediction]) else "Desconocido"
-
-
-            showDialog = true
-        }
+        CameraUtils.onImageCaptured = onImageCaptured
     }
-
-    if (showDialog && capturedImage != null) {
-        ResultDialog(
-            raza = predictedLabel,
-            confianza = confidence,
-            image = capturedImage!!,
-            onDismiss = { showDialog = false },
-            onConfirm = {
-                capturedImage?.let { bitmap ->
-                    val imageFile = saveBitmapToFile(context, bitmap)
-                    val route = "info?raza=$predictedLabel&imagePath=${imageFile.absolutePath}"
-                    navController.navigate(route)
-                    showDialog = false
-                }
-            }
-        )
-    }
-
-
-}
-fun saveBitmapToFile(context: Context, bitmap: Bitmap): File {
-    val fileName = "captured_image_${System.currentTimeMillis()}.jpg"
-    val file = File(context.cacheDir, fileName)
-    try {
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-    return file
 }
 
 
@@ -400,29 +399,6 @@ fun limpiarNombreRaza(nombreCrudo: String): String {
         .replace("_", " ")
         .replaceFirstChar { it.uppercase() }
 }
-
-
-fun rotateBitmap(bitmap: Bitmap, context: Context): Bitmap {
-    val rotationDegrees = getRotationDegrees(context, CameraSelector.DEFAULT_BACK_CAMERA)  // Usa el selector de cámara aquí
-    val matrix = android.graphics.Matrix()
-    matrix.postRotate(rotationDegrees.toFloat())  // Rota la imagen según la orientación
-    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-}
-
-fun getRotationDegrees(context: Context, cameraSelector: CameraSelector): Int {
-    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-    val cameraProvider = cameraProviderFuture.get()
-
-    val camera = cameraProvider.bindToLifecycle(
-        context as LifecycleOwner,
-        cameraSelector
-    )
-
-    val cameraInfo = camera.cameraInfo
-    return cameraInfo.sensorRotationDegrees  // Obtén la rotación de la cámara
-}
-
-
 @Composable
 fun ResultDialog(
     raza: String,
@@ -553,15 +529,20 @@ fun ResultDialog(
         }
     }
 }
+object CameraUtils {
+    var imageCapture: ImageCapture? = null
+    var onImageCaptured: ((Bitmap) -> Unit)? = null
+}
 
-
-
-
-fun loadModelFile(context: Context, modelName: String): MappedByteBuffer {
-    val fileDescriptor = context.assets.openFd(modelName)
-    val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-    val fileChannel = inputStream.channel
-    val startOffset = fileDescriptor.startOffset
-    val declaredLength = fileDescriptor.declaredLength
-    return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+fun saveBitmapToFile(context: Context, bitmap: Bitmap): File {
+    val fileName = "captured_image_${System.currentTimeMillis()}.jpg"
+    val file = File(context.cacheDir, fileName)
+    try {
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+    return file
 }
